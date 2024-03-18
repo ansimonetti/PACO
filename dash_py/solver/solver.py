@@ -1,5 +1,5 @@
-from automaton_graph import AutomatonGraph, ANode, AGraph
-import array_operations
+from solver.automaton_graph import AutomatonGraph, ANode, AGraph
+import solver.array_operations as array_operations
 
 class GameSolver:
     def __init__(self, automaton_graph: AutomatonGraph, goal) -> None:

@@ -14,17 +14,17 @@ from IPython.display import display
 import numpy as np
 from itertools import product
 
-from view_points import VPChecker
-from tree_lib import CNode, CTree
-from tree_lib import from_lark_parsed_to_custom_tree as Lark_to_CTree
-from tree_lib import print_sese_custom_tree as print_sese_CTree
+from solver.view_points import VPChecker
+from solver.tree_lib import CNode, CTree
+from solver.tree_lib import from_lark_parsed_to_custom_tree as Lark_to_CTree
+from solver.tree_lib import print_sese_custom_tree as print_sese_CTree
 from utils.env import SESE_PARSER
-from gCleaner import gCleaner
+from solver.gCleaner import gCleaner
 
-import array_operations
+# import array_operations
 
-from automaton_graph import AutomatonGraph
-from solver import GameSolver
+from solver.automaton_graph import AutomatonGraph
+from solver.solver import GameSolver
 
 current_directory = os.path.dirname(os.path.realpath('tree_lib.py'))
 # Add the current directory to the Python path
@@ -138,6 +138,29 @@ winning_set = solver.compute_winning_final_set()
 if winning_set != None: print("\n\nA strategy could be found\n")
 else: print("\n\nFor this specific instance a strategy does not exist\n")
 
+def test():
+    tree = SESE_PARSER.parse(args['expression'])
+    custom_tree, last_id = Lark_to_CTree(tree, args['probabilities'], args['impacts'], args['durations'], args['names'], args['delays'], h=args['h'])
+    number_of_nodes = last_id + 1
+    sul = VPChecker(custom_tree, number_of_nodes) #system under learning, with step, pre and post methods defined
+    input_al = sul.accepted_alphabet
+
+    eq_oracle = RandomWalkEqOracle(input_al, sul, num_steps=100, reset_after_cex=True, reset_prob=0.01)
+    #eq_oracle_2 = StatePrefixEqOracle(input_al, sul, walks_per_state=100, walk_len=100, depth_first=True)
+
+    learned_automaton= run_Lstar(input_al, sul, eq_oracle=eq_oracle, automaton_type='mealy', cache_and_non_det_check=False,
+                    print_level=1, max_learning_rounds=20)
+    learned_automaton.save("automaton.dot")
+
+    cleaner = gCleaner("automaton.dot")
+    cleaner.save_cleaned_dot_graph("automaton_cleaned.dot")
+    mealy = load_automaton_from_file(path='automaton_cleaned.dot', automaton_type='mealy', compute_prefixes=True)
+    ag = AutomatonGraph(mealy, sul)
+    goal = [7,6]
+    solver = GameSolver(ag, goal)
+    winning_set = solver.compute_winning_final_set()
+    if winning_set != None: print("\n\nA strategy could be found\n")
+    else: print("\n\nFor this specific instance a strategy does not exist\n")
 # for s in states:
 #     for k in s.output_fun.keys():
 #         if s.output_fun[k] == 1:

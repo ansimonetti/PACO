@@ -1,5 +1,5 @@
-import os
-os.environ["PATH"] += os.pathsep + 'C:/Program Files/Graphviz/bin/'
+#import os
+#os.environ["PATH"] += os.pathsep + 'C:/Program Files/Graphviz/bin/'
 from graphviz import Source
 
 class gCleaner():

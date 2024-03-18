@@ -69,7 +69,7 @@ def layout():
         # ),       
         
         html.P('Insert the impacts of the tasks in the following format: {"Task1": 1, "Task3":3}'),
-        # dcc.Textarea(value='',  id = 'input-impacts', persistence=True),
+        dcc.Textarea(value='',  id = 'input-impacts', persistence=True),
         html.Br(),
         html.Button('Create diagram', id='create-diagram-button'),
         #####################
@@ -141,40 +141,33 @@ def find_strategy(n_clicks, algo:str, bound:dict):
     Output('lark-diagram', 'figure'),
     Input('create-diagram-button', 'n_clicks'),
     State('input-bpmn', 'value'),
-    # State('input-impacts', 'value'),
+    State('input-impacts', 'value'),
     #State('durations-task-table', 'value'),
     prevent_initial_call=True
 )
 def create_sese_diagram(nclick, task , impacts= {}, duration=9):
     
     #check the syntax of the input if correct print the diagram otherwise an error message 
-    # try:
-    #     if task == '' or task == None:
-    #         return None
-    #     bpmn_lark[TASK_SEQ] = task
-    #     bpmn_lark['h'] = duration
-    #     bpmn_lark[IMPACTS] = impacts
-    # except:
-    #     return None
-    bpmn_lark[TASK_SEQ] = task
-    img = print_sese_diagram(**bpmn_lark) 
-    fig = px.imshow(img=img) 
-    fig.update_layout(width=500, height=100, margin=dict(l=0, r=0, t=0, b=0), paper_bgcolor="rgba(0,0,0,0)")
-    fig.update_xaxes(showticklabels=False)
-    fig.update_yaxes(showticklabels=False)  
-    return  fig
-    # if cs.checkCorrectSyntax(**bpmn_lark):
-    #     tasks = cs.extract_tasks(bpmn_lark[TASK_SEQ])
-    #     print(tasks)
-    #     # Create a new SESE Diagram from the input
-    #     img = print_sese_diagram(**bpmn_lark) 
-    #     fig = px.imshow(img=img) 
-    #     fig.update_layout(width=500, height=100, margin=dict(l=0, r=0, t=0, b=0), paper_bgcolor="rgba(0,0,0,0)")
-    #     fig.update_xaxes(showticklabels=False)
-    #     fig.update_yaxes(showticklabels=False)  
-    #     return  fig 
-    # else:
-    #     return  None
+    try:
+        if task == '' or task == None:
+            return None
+        bpmn_lark[TASK_SEQ] = task
+        bpmn_lark['h'] = duration
+        bpmn_lark[IMPACTS] = impacts
+    except:
+        return None
+    if cs.checkCorrectSyntax(**bpmn_lark):
+        tasks = cs.extract_tasks(bpmn_lark[TASK_SEQ])
+        print(tasks)
+        # Create a new SESE Diagram from the input
+        img = print_sese_diagram(**bpmn_lark) 
+        fig = px.imshow(img=img) 
+        fig.update_layout(width=500, height=100, margin=dict(l=0, r=0, t=0, b=0), paper_bgcolor="rgba(0,0,0,0)")
+        fig.update_xaxes(showticklabels=False)
+        fig.update_yaxes(showticklabels=False)  
+        return  fig 
+    else:
+        return  None
 
 #######################
 ## ADD TASK durations
@@ -196,9 +189,14 @@ def add_task(tasks):
             'Duration': dcc.RangeSlider(
                 id=f'range-slider-{i}',
                 min=0,
-                max=1e10,
-                value=[0, 10],
-                marks={j: str(j) for j in range(0, 11, 1) if j != 0}
+                max=1e5,
+                value=[0, 100],
+                #marks={j: str(j) for j in range(0, 11, 1) if j != 0},
+                marks=None,
+                tooltip={
+                    "placement": "bottom",
+                    "always_visible": True,
+                }
             )
         })
     #return task_data

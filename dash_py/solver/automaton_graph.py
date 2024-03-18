@@ -1,5 +1,5 @@
-import array_operations
-from view_points import VPChecker
+import solver.array_operations
+from solver.view_points import VPChecker
 
 class ANode():
     def __init__(self, state_id: str, is_final_state: bool = False, is_square_node: bool = False, generator: str = None) -> None:
