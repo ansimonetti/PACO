@@ -1,15 +1,15 @@
-import base64
-import io
 import dash
 from dash import html, dcc, Input, Output,State, callback
+import dash_bootstrap_components as dbc
+
 import pandas as pd
 import plotly.express as px
-import plotly.subplots as sb
+
 from utils import check_syntax as cs
 from utils import automa as at
-from utils.env import ALGORITHMS, TASK_SEQ, IMPACTS, PATH_IMAGE_BPMN_LARK
+from utils.env import ALGORITHMS, TASK_SEQ, IMPACTS
 from utils.print_sese_diagram import print_sese_diagram
-import dash_bootstrap_components as dbc
+
 dash.register_page(__name__, path='/')
 # SimpleTask1, Task1 || Task, rjfgkn ^ Task9
 bpmn_lark = {
