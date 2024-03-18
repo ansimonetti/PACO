@@ -60,15 +60,15 @@ def layout():
         # ]
         # ),
         html.Br(),
-        dcc.Textarea(value='SimpleTask', id = 'input-bpmn', persistence=True), # persistance è obbligatoria altrimenti quando ricarica la pagina (cioè ogni valta che aggiorna il graph lark-diagram)
-        # html.P('Insert the duration of the tasks:'),
-        # html.Div(id='task-duration'), 
+        dcc.Textarea(value='SimpleTask', id = 'input-bpmn'), # persistance è obbligatoria altrimenti quando ricarica la pagina (cioè ogni valta che aggiorna il graph lark-diagram)
+        html.P('Insert the duration of the tasks:'),
+        html.Div(id='task-duration'), 
         # dbc.Table.from_dataframe(        
         #     pd.DataFrame(data),
         #     id = 'durations-task-table',
         # ),       
         
-        # html.P('Insert the impacts of the tasks in the following format: {"Task1": 1, "Task3":3}'),
+        html.P('Insert the impacts of the tasks in the following format: {"Task1": 1, "Task3":3}'),
         # dcc.Textarea(value='',  id = 'input-impacts', persistence=True),
         html.Br(),
         html.Button('Create diagram', id='create-diagram-button'),
@@ -83,24 +83,23 @@ def layout():
         ############################
         ### STRATEGY
         ##############################
-        # html.Div(id="strategy", children=[
-        #     html.H1("Choose the strategy to use:"),
-        #     dcc.Dropdown(
-        #         id='choose-strategy',
-        #         options=[
-        #             {'label': value, 'value': key}
-        #             for key, value in ALGORITHMS.items()
-        #         ],
-        #         value= list(ALGORITHMS.keys())[0] # default value
-        #     ),
-        #     html.P('Insert the bound dictionary -it has to correspond to the impact dictionary- : {"cost": 10, "working_hours": 12}'),
-        #     dcc.Textarea(value='', id='input-bound'),
-        #     html.Br(),
-        #     html.Br(),
-        #     html.Button('Find strategy', id='find-strategy-button'),
-        #     html.Div(id='strategy-founded')
-            
-        # ]),
+        html.Div(id="strategy", children=[
+            html.H1("Choose the strategy to use:"),
+            dcc.Dropdown(
+                id='choose-strategy',
+                options=[
+                    {'label': value, 'value': key}
+                    for key, value in ALGORITHMS.items()
+                ],
+                value= list(ALGORITHMS.keys())[0] # default value
+            ),
+            html.P('Insert the bound dictionary -it has to correspond to the impact dictionary- : {"cost": 10, "working_hours": 12}'),
+            dcc.Textarea(value='', id='input-bound'),
+            html.Br(),
+            html.Br(),
+            html.Button('Find strategy', id='find-strategy-button'),
+            html.Div(id='strategy-founded')            
+        ]),
     ])
 
 
@@ -110,26 +109,26 @@ def layout():
 ## find one 
  
 #########################
-# @callback(
-#     Output('strategy-founded', 'children'),
-#     Input('find-strategy-button', 'n_clicks'),
-#     State('choose-strategy', 'value'),
-#     State('input-bound', 'value'),
-#     prevent_initial_call=True
-# )
-# def find_strategy(n_clicks, algo:str, bound:dict):
-#     """This function is when the user update the syntax."""
-#     print(bpmn_lark[TASK_SEQ],algo)
-#     if bound == {} or bound == '' or bound == None:
-#         return html.P(f'Insert a bound dictionary to find the strategy.')
-#     if cs.checkCorrectSyntax(**bpmn_lark) and cs.check_algo_is_usable(bpmn_lark[TASK_SEQ],algo):
-#         finded_strategies = at.calc_strat(bpmn_lark, {})
-#         if finded_strategies == {}: 
-#             return html.P(f'No strategies found')
-#         else:
-#            return html.P(f'Strategies founded: {finded_strategies}') 
-#     else:
-#         return html.P(f'Ops! Seems that your diagram is too complex for this algorithm. Please check your syntax or try with another algorithm.')
+@callback(
+    Output('strategy-founded', 'children'),
+    Input('find-strategy-button', 'n_clicks'),
+    State('choose-strategy', 'value'),
+    State('input-bound', 'value'),
+    prevent_initial_call=True
+)
+def find_strategy(n_clicks, algo:str, bound:dict):
+    """This function is when the user update the syntax."""
+    print(bpmn_lark[TASK_SEQ],algo)
+    if bound == {} or bound == '' or bound == None:
+        return html.P(f'Insert a bound dictionary to find the strategy.')
+    if cs.checkCorrectSyntax(**bpmn_lark) and cs.check_algo_is_usable(bpmn_lark[TASK_SEQ],algo):
+        finded_strategies = at.calc_strat(bpmn_lark, {})
+        if finded_strategies == {}: 
+            return html.P(f'No strategies found')
+        else:
+           return html.P(f'Strategies founded: {finded_strategies}') 
+    else:
+        return html.P(f'Ops! Seems that your diagram is too complex for this algorithm. Please check your syntax or try with another algorithm.')
 
 
 #######################
@@ -181,29 +180,29 @@ def create_sese_diagram(nclick, task , impacts= {}, duration=9):
 ## ADD TASK durations
 #######################
 
-# @callback(
-#     Output('task-duration', 'children'),#Output('durations-task-table', 'value'),
-#     Input('input-bpmn', 'value')
-# )
-# def add_task(tasks):
-#     if not tasks:
-#         return []
+@callback(
+    Output('task-duration', 'children'),#Output('durations-task-table', 'value'),
+    Input('input-bpmn', 'value')
+)
+def add_task(tasks):
+    if not tasks:
+        return []
     
-#     tasks_list = cs.extract_tasks(tasks)
-#     task_data = []
-#     for i, task in enumerate(tasks_list):
-#         task_data.append({
-#             'Task': task,
-#             'Duration': dcc.RangeSlider(
-#                 id=f'range-slider-{i}',
-#                 min=0,
-#                 max=1e10,
-#                 value=[0, 10],
-#                 marks={j: str(j) for j in range(0, 11, 1) if j != 0}
-#             )
-#         })
-#     #return task_data
-#     return dbc.Table.from_dataframe(        
-#         pd.DataFrame(task_data),
-#         id = 'durations-task-table',
-#     )
+    tasks_list = cs.extract_tasks(tasks)
+    task_data = []
+    for i, task in enumerate(tasks_list):
+        task_data.append({
+            'Task': task,
+            'Duration': dcc.RangeSlider(
+                id=f'range-slider-{i}',
+                min=0,
+                max=1e10,
+                value=[0, 10],
+                marks={j: str(j) for j in range(0, 11, 1) if j != 0}
+            )
+        })
+    #return task_data
+    return dbc.Table.from_dataframe(        
+        pd.DataFrame(task_data),
+        id = 'durations-task-table',
+    )
