@@ -1,0 +1,10 @@
+lark
+pydot
+pillow
+nbformat
+ipython
+numpy
+aalpy
+graphviz
+networkx
+matplotlib
