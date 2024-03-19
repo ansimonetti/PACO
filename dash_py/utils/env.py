@@ -50,9 +50,22 @@ ALGORITHMS_MISSING_SYNTAX = {
     's2': ['<', '>', '||',], # NO LOOP and parallel
     's3': ['||', '<', '>', '[]', ',', ''] # ONLY XOR
 }
+#### PATHS ##############################
 PATH_IMAGE_BPMN_LARK = 'assets/d.png'
+PATH_AUTOMATON = 'assets/automaton.dot'
+PATH_AUTOMATON_CLEANED = 'assets/automaton_cleaned.dot'
+### args for tree LARK
 TASK_SEQ = 'expression'
 IMPACTS = 'impacts'
+NAMES = 'names'
 PROBABILITIES = 'probabilities'
+LOOP_THRESHOLD = 'loop_threshold'
+DURATIONS = 'durations'
+DELAYS = 'delays'
+H = 'h'
+
+# 
+AUTOMATON_TYPE = 'mealy'
+### SYNTAX
 LOOPS = 'loops'
 ADVERSARIES = 'adversaries'

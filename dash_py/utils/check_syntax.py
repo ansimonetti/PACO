@@ -20,9 +20,9 @@ def check_algo_is_usable(expression: str, algo: str) -> bool:
     if expression == '' or algo == '' or algo not in ALGORITHMS.keys():
         return False
     if algo in ALGORITHMS_MISSING_SYNTAX.keys() and list(ALGORITHMS_MISSING_SYNTAX.get(algo)) != []:
-        print(list(ALGORITHMS_MISSING_SYNTAX.get(algo)))
+        #print(list(ALGORITHMS_MISSING_SYNTAX.get(algo)))
         for element in list(ALGORITHMS_MISSING_SYNTAX.get(algo)):
-            print(element)
+            #print(element)
             if element in expression:
                 return False               
     print('checking expression within algo in progress...')
@@ -40,10 +40,12 @@ def check_ONLY_1_taks(string: str) -> bool:
     return True
 
 def extract_tasks(expression: str) -> list[str]:
-    
+    """
+        Function that extracts the tasks from the  BPMN expression.
+    """
     if expression == '' or expression is None:
         return []
-    print(expression)
+    #print(expression)
     if check_ONLY_1_taks(expression):
         print('only 1 task')
         return expression

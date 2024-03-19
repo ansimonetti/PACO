@@ -1,4 +1,4 @@
-import solver.array_operations
+import solver.array_operations as array_operations
 from solver.view_points import VPChecker
 
 class ANode():

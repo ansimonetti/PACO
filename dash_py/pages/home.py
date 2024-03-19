@@ -44,21 +44,6 @@ def layout():
             'h':2,
             'impacts': {'Task1': [1,0,1], 'Task3':[1,2,3]},
         }"""),
-        # html.Div(id='task-duration'
-        #          ,children=[
-        #     html.H4("Tasks duration:"),
-        #     dcc.Checklist(#id='taks-duration-choose',
-        #         ['New York City', 'Montréal', 'San Francisco'],
-        #         ['New York City', 'Montréal']),
-        #     dcc.RangeSlider(
-        #         id='range-slider',
-        #         min=0,
-        #         max=1e10,
-        #         value=[0, 1e10],
-        #         marks={i: str(i) for i in range(0, 11, 1) if i != 0}
-        #     ),
-        # ]
-        # ),
         html.Br(),
         dcc.Textarea(value='SimpleTask', id = 'input-bpmn'), # persistance è obbligatoria altrimenti quando ricarica la pagina (cioè ogni valta che aggiorna il graph lark-diagram)
         html.P('Insert the duration of the tasks:'),
@@ -105,7 +90,7 @@ def layout():
 
 #######################
 
-## UPDATE THE STRATEGY
+## FIND THE STRATEGY
 ## find one 
  
 #########################
@@ -117,16 +102,17 @@ def layout():
     prevent_initial_call=True
 )
 def find_strategy(n_clicks, algo:str, bound:dict):
-    """This function is when the user update the syntax."""
+    """This function is when the user search a str."""
     print(bpmn_lark[TASK_SEQ],algo)
+    bound = {"cost": 10, "working_hours": 12}
     if bound == {} or bound == '' or bound == None:
         return html.P(f'Insert a bound dictionary to find the strategy.')
     if cs.checkCorrectSyntax(**bpmn_lark) and cs.check_algo_is_usable(bpmn_lark[TASK_SEQ],algo):
-        finded_strategies = at.calc_strat(bpmn_lark, {})
+        finded_strategies = at.calc_strat(bpmn_lark, bound, algo)
         if finded_strategies == {}: 
             return html.P(f'No strategies found')
         else:
-           return html.P(f'Strategies founded: {finded_strategies}') 
+           return html.P(f'Strategies: {finded_strategies[list(finded_strategies.keys())[0]]}') 
     else:
         return html.P(f'Ops! Seems that your diagram is too complex for this algorithm. Please check your syntax or try with another algorithm.')
 
