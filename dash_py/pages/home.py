@@ -7,29 +7,38 @@ import plotly.express as px
 
 from utils import check_syntax as cs
 from utils import automa as at
-from utils.env import ALGORITHMS, TASK_SEQ, IMPACTS
+from utils.env import ALGORITHMS, TASK_SEQ, IMPACTS, H, DURATIONS
 from utils.print_sese_diagram import print_sese_diagram
 
 dash.register_page(__name__, path='/')
 # SimpleTask1, Task1 || Task, rjfgkn ^ Task9
 bpmn_lark = {
     TASK_SEQ: 'SimpleTask',
-    'h': {},
+    H: 0,
     IMPACTS: {},
 }
-# data= {
-#             'Task': bpmn_lark[TASK_SEQ],
-#             'Duration': dcc.RangeSlider(
-#                 id=f'range-slider-',
-#                 min=0,
-#                 max=1e10,
-#                 value=[0, 10],
-#                 marks={j: str(j) for j in range(0, 11, 1) if j != 0}
-#             )
-#         }
+min_duration = 0
+max_duration = 100
+value_interval = [min_duration, max_duration]
+marks = {j: str(j) for j in range(min_duration, int(max_duration), 10) if j != 0}
+data = {
+    'Task': bpmn_lark[TASK_SEQ],
+    'Duration': dcc.RangeSlider(
+        id=f'range-slider-',
+        min=min_duration,
+        max=max_duration,
+        value=value_interval,
+        marks=marks
+    )
+}
+ 
+width = 500
+height  = 250
+margin = dict(l=0, r=0, t=0, b=0)
+color = "rgba(0,0,0,0)"
 img = print_sese_diagram(**bpmn_lark) 
 fig = px.imshow(img=img) 
-fig.update_layout(width=500, height=250, margin=dict(l=0, r=0, t=0, b=0), paper_bgcolor="rgba(0,0,0,0)")
+fig.update_layout(width=width, height=height, margin=margin, paper_bgcolor=color)
 fig.update_xaxes(showticklabels=False)
 fig.update_yaxes(showticklabels=False)
 def layout():
@@ -41,19 +50,19 @@ def layout():
         #dcc.Upload(id='upload-data', children=html.Div(['Drag and Drop or ', html.A('Select Files')]), multiple=False), # Drag and drop per file ma da usapre più avanti
         html.P("""Here is an example of a BPMN complete diagram with impacts and duration: {
             'expression':'Task1, Task2,Task3',
-            'h':2,
             'impacts': {'Task1': [1,0,1], 'Task3':[1,2,3]},
         }"""),
         html.Br(),
-        dcc.Textarea(value='SimpleTask', id = 'input-bpmn'), # persistance è obbligatoria altrimenti quando ricarica la pagina (cioè ogni valta che aggiorna il graph lark-diagram)
+        dcc.Textarea(value=bpmn_lark[TASK_SEQ], id = 'input-bpmn'), # persistance è obbligatoria altrimenti quando ricarica la pagina (cioè ogni valta che aggiorna il graph lark-diagram)
         html.P('Insert the duration of the tasks:'),
         html.Div(id='task-duration'), 
-        # dbc.Table.from_dataframe(        
-        #     pd.DataFrame(data),
-        #     id = 'durations-task-table',
-        # ),       
-        
-        html.P('Insert the impacts of the tasks in the following format: {"Task1": 1, "Task3":3}'),
+        dbc.Table.from_dataframe(        
+            pd.DataFrame(data),
+            id = 'durations-task-table',
+            style = {'width': '100%', 'textAlign': 'center'}
+        ),        
+        html.P('Insert the impacts of the tasks in the following format: {"SimpleTask":  {"cost": 10, "working_hours": 12}, "Task3":  {"cost": 18, "working_hours": 5} }'),
+        html.Div(id='impacts'),
         dcc.Textarea(value='',  id = 'input-impacts', persistence=True),
         html.Br(),
         html.Button('Create diagram', id='create-diagram-button'),
@@ -79,7 +88,8 @@ def layout():
                 value= list(ALGORITHMS.keys())[0] # default value
             ),
             html.P('Insert the bound dictionary -it has to correspond to the impact dictionary- : {"cost": 10, "working_hours": 12}'),
-            dcc.Textarea(value='', id='input-bound'),
+            #dcc.Textarea(value='', id='input-bound'),
+            html.Div(id= 'choose-bound-dict'),
             html.Br(),
             html.Br(),
             html.Button('Find strategy', id='find-strategy-button'),
@@ -91,19 +101,17 @@ def layout():
 #######################
 
 ## FIND THE STRATEGY
-## find one 
  
 #########################
 @callback(
     Output('strategy-founded', 'children'),
     Input('find-strategy-button', 'n_clicks'),
     State('choose-strategy', 'value'),
-    State('input-bound', 'value'),
+    State('input-bound', 'value'),    
     prevent_initial_call=True
 )
 def find_strategy(n_clicks, algo:str, bound:dict):
     """This function is when the user search a str."""
-    print(bpmn_lark[TASK_SEQ],algo)
     bound = {"cost": 10, "working_hours": 12}
     if bound == {} or bound == '' or bound == None:
         return html.P(f'Insert a bound dictionary to find the strategy.')
@@ -128,17 +136,18 @@ def find_strategy(n_clicks, algo:str, bound:dict):
     Input('create-diagram-button', 'n_clicks'),
     State('input-bpmn', 'value'),
     State('input-impacts', 'value'),
-    #State('durations-task-table', 'value'),
+    #State('task-duration', 'children'),
+    State('durations-task-table', 'children'),
     prevent_initial_call=True
 )
-def create_sese_diagram(nclick, task , impacts= {}, duration=9):
-    
+def create_sese_diagram(nclick, task , impacts= {}, durations = {}):
+    #print(durations)
     #check the syntax of the input if correct print the diagram otherwise an error message 
     try:
         if task == '' or task == None:
             return None
         bpmn_lark[TASK_SEQ] = task
-        bpmn_lark['h'] = duration
+        bpmn_lark[H] = durations
         bpmn_lark[IMPACTS] = impacts
     except:
         return None
@@ -148,45 +157,89 @@ def create_sese_diagram(nclick, task , impacts= {}, duration=9):
         # Create a new SESE Diagram from the input
         img = print_sese_diagram(**bpmn_lark) 
         fig = px.imshow(img=img) 
-        fig.update_layout(width=500, height=100, margin=dict(l=0, r=0, t=0, b=0), paper_bgcolor="rgba(0,0,0,0)")
+        fig.update_layout(width=width, height=height, margin=margin, paper_bgcolor=color)
         fig.update_xaxes(showticklabels=False)
         fig.update_yaxes(showticklabels=False)  
-        return  fig 
+        return fig 
     else:
         return  None
 
 #######################
+    
 ## ADD TASK durations
+    
 #######################
 
 @callback(
-    Output('task-duration', 'children'),#Output('durations-task-table', 'value'),
+    Output('durations-task-table', 'children'), #Output('task-duration', 'children'),
     Input('input-bpmn', 'value')
 )
-def add_task(tasks):
-    if not tasks:
+def add_task(tasks_):
+    if not tasks_:
         return []
-    
-    tasks_list = cs.extract_tasks(tasks)
+
+    tasks_list = cs.extract_tasks(tasks_)
     task_data = []
     for i, task in enumerate(tasks_list):
         task_data.append({
             'Task': task,
             'Duration': dcc.RangeSlider(
                 id=f'range-slider-{i}',
-                min=0,
-                max=1e5,
-                value=[0, 100],
-                #marks={j: str(j) for j in range(0, 11, 1) if j != 0},
-                marks=None,
+                min=min_duration,
+                max=max_duration,
+                value=value_interval,
+                marks=marks,
                 tooltip={
                     "placement": "bottom",
                     "always_visible": True,
                 }
             )
         })
-    #return task_data
+    # task_data = dbc.Table.from_dataframe(        
+    #     pd.DataFrame(task_data),
+    #     id = 'durations-task-table',
+    #     style = {'width': '100%', 'textalign': 'center'}
+    # )
+    # return task_data
     return dbc.Table.from_dataframe(        
         pd.DataFrame(task_data),
         id = 'durations-task-table',
+        style = {'width': '100%', 'textalign': 'center'}
+    )
+
+
+#######################
+
+## ADD BOUND 
+
+#######################
+
+@callback(
+    Output('choose-bound-dict', 'children'),
+    Input('create-diagram-button', 'n_clicks'),
+    State('input-impacts', 'value'),
+)
+def add_task(n_clicks, impacts):
+    if impacts == '' or impacts == None:
+        return None
+    impacts = cs.string_to_dict(impacts)
+    #print(impacts)
+    impacts_list = []
+    for impact in list(impacts.values())[0]:
+        impacts_list.append(impact)
+    task_data = []
+    #print(impacts_list)
+    for i, task in enumerate(impacts_list):
+        task_data.append({
+            'Impacts': task,
+            'Set Input': dcc.Input(
+                id=f'range-slider-{i}',
+                type='number',
+                min= min_duration,
+            )
+        })
+    return dbc.Table.from_dataframe(        
+        pd.DataFrame(task_data),
+        id = 'choose-bound-dict-df',
+        style = {'width': '100%', 'textalign': 'center'}
     )

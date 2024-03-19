@@ -1,10 +1,10 @@
 
 """
-   File that checks things
+   File that checks things and useful things 
 """
 from utils.env import ALGORITHMS, ALGORITHMS_MISSING_SYNTAX, ALL_SYNTAX
 import re
-
+import json
 def checkCorrectSyntax(expression:str, h = 0, probabilities={}, impacts={}, loop_thresholds = {}) -> bool:
     """
     Check if the syntax of the BPMN file is correct.
@@ -62,3 +62,6 @@ def extract_tasks(expression: str) -> list[str]:
         return []
       
     return tasks.split(' ')
+
+def string_to_dict(string) -> dict:
+    return json.loads(string)

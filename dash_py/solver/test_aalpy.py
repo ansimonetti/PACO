@@ -148,33 +148,38 @@ args = {
 #                 impact = array_operations.sum(impact, array_operations.product(sul.taskDict[t]["impact"], sul.taskDict[t]["probability"]))
 #             print(s.state_id, k, impact)
 
-def test(bpmn: dict, bound: list[int] = [7,6]) -> str:
-    tree = SESE_PARSER.parse(bpmn[TASK_SEQ])
-    custom_tree, last_id = Lark_to_CTree(tree, args[PROBABILITIES],
-                                        args[IMPACTS], args[DURATIONS], 
-                                        args[NAMES], args[DELAYS], h=args[H])
-    number_of_nodes = last_id + 1
-    sul = VPChecker(custom_tree, number_of_nodes) #system under learning, with step, pre and post methods defined
-    input_al = sul.accepted_alphabet
+def automata_search_strategy(bpmn: dict, bound: list[int]) -> str:
+    try:
+        tree = SESE_PARSER.parse(bpmn[TASK_SEQ])
+        custom_tree, last_id = Lark_to_CTree(tree, args[PROBABILITIES],
+                                            args[IMPACTS], args[DURATIONS], 
+                                            args[NAMES], args[DELAYS], h=args[H])
+        number_of_nodes = last_id + 1
+        sul = VPChecker(custom_tree, number_of_nodes) #system under learning, with step, pre and post methods defined
+        input_al = sul.accepted_alphabet
 
-    eq_oracle = RandomWalkEqOracle(input_al, sul, num_steps=100, reset_after_cex=True, reset_prob=0.01)
-    #eq_oracle_2 = StatePrefixEqOracle(input_al, sul, walks_per_state=100, walk_len=100, depth_first=True)
+        eq_oracle = RandomWalkEqOracle(input_al, sul, num_steps=100, reset_after_cex=True, reset_prob=0.01)
+        #eq_oracle_2 = StatePrefixEqOracle(input_al, sul, walks_per_state=100, walk_len=100, depth_first=True)
 
-    learned_automaton= run_Lstar(input_al, sul, eq_oracle=eq_oracle, automaton_type=AUTOMATON_TYPE, cache_and_non_det_check=False,
-                    print_level=1, max_learning_rounds=20)
-    learned_automaton.save(PATH_AUTOMATON)
+        learned_automaton= run_Lstar(input_al, sul, eq_oracle=eq_oracle, automaton_type=AUTOMATON_TYPE, cache_and_non_det_check=False,
+                        print_level=1, max_learning_rounds=20)
+        learned_automaton.save(PATH_AUTOMATON)
 
-    cleaner = gCleaner(PATH_AUTOMATON)
-    cleaner.save_cleaned_dot_graph(PATH_AUTOMATON_CLEANED)
-    mealy = load_automaton_from_file(path=PATH_AUTOMATON_CLEANED, automaton_type=AUTOMATON_TYPE, compute_prefixes=True)
-    ag = AutomatonGraph(mealy, sul)    
-    solver = GameSolver(ag, bound)
-    winning_set = solver.compute_winning_final_set()
-    if winning_set != None: 
-        s = "\n\nA strategy could be found\n"
-        print(s)
-        return s
-    else: 
-        s = "\n\nFor this specific instance a strategy does not exist\n"
-        print(s)
+        cleaner = gCleaner(PATH_AUTOMATON)
+        cleaner.save_cleaned_dot_graph(PATH_AUTOMATON_CLEANED)
+        mealy = load_automaton_from_file(path=PATH_AUTOMATON_CLEANED, automaton_type=AUTOMATON_TYPE, compute_prefixes=True)
+        ag = AutomatonGraph(mealy, sul)    
+        solver = GameSolver(ag, bound)
+        winning_set = solver.compute_winning_final_set()
+        if winning_set != None: 
+            s = "\n\nA strategy could be found\n"
+            print(s)
+            return s
+        else: 
+            s = "\n\nFor this specific instance a strategy does not exist\n"
+            print(s)
+            return s
+    except Exception as e:
+        print(f'test failed: {e}')
+        s = "Error in calculate the strategy"
         return s

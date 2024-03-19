@@ -1,7 +1,7 @@
 from random import randint
 
 from utils.env import ALGORITHMS
-from solver.test_aalpy import test
+from solver.test_aalpy import automata_search_strategy
 
 " Here the automata is called to calculate the strategies for the process "
 def calc_strat(bpmn:dict, bound:dict, algo:str) -> dict:
@@ -64,17 +64,7 @@ def calc_strategy_paco(bpmn:dict, bound:list[int]) -> dict:
     strategies = {}
     try:
         print('testing...')
-        args = {
-            'expression': "(Task1, Task2), (Task3, Task4)",
-            'impacts': {"Task1": [0,1], "Task2": [0,1], "Task3": [0,1], "Task4": [0,1]},
-            'names': {},
-            'probabilities': {},
-            'loop_thresholds': {},
-            'durations': {"Task1": 1, "Task2": 1, "Task3": 1, "Task4": 1},
-            'delays': {},
-            'h': 0
-        }
-        strat = test(bpmn, bound)
+        strat = automata_search_strategy(bpmn, bound)
         if strat == "\n\nA strategy could be found\n":
             strategies['strat1'] = strat
         else:            
