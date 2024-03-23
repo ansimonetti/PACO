@@ -13,7 +13,7 @@ from utils.print_sese_diagram import print_sese_diagram
 dash.register_page(__name__, path='/')
 # SimpleTask1, Task1 || Task, rjfgkn ^ Task9
 bpmn_lark = {
-    TASK_SEQ: 'SimpleTask',
+    TASK_SEQ: 'SimpleTask, hello',
     H: 0,
     IMPACTS: {},
 }
@@ -50,7 +50,7 @@ def layout():
         #dcc.Upload(id='upload-data', children=html.Div(['Drag and Drop or ', html.A('Select Files')]), multiple=False), # Drag and drop per file ma da usapre più avanti
         html.P("""Here is an example of a BPMN complete diagram with impacts and duration: {
             'expression':'Task1, Task2,Task3',
-            'impacts': {'Task1': [1,0,1], 'Task3':[1,2,3]},
+            'impacts': {"Task1":  {"cost": 10, "working_hours": 12}, "Task2":  {"cost": 8, "working_hours": 6}, "Task3":  {"cost": 18, "working_hours": 5} },
         }"""),
         html.Br(),
         dcc.Textarea(value=bpmn_lark[TASK_SEQ], id = 'input-bpmn'), # persistance è obbligatoria altrimenti quando ricarica la pagina (cioè ogni valta che aggiorna il graph lark-diagram)
@@ -61,7 +61,7 @@ def layout():
             id = 'durations-task-table',
             style = {'width': '100%', 'textAlign': 'center'}
         ),        
-        html.P('Insert the impacts of the tasks in the following format: {"SimpleTask":  {"cost": 10, "working_hours": 12}, "Task3":  {"cost": 18, "working_hours": 5} }'),
+        html.P('Insert the impacts of the tasks in the following format: {"SimpleTask":  {"cost": 10, "working_hours": 12}, "Task3":  {"cost": 18, "working_hours": 5} }. The values have to be integeres and only 1 value is allowed.'),
         html.Div(id='impacts'),
         dcc.Textarea(value='',  id = 'input-impacts', persistence=True),
         html.Br(),
@@ -107,20 +107,20 @@ def layout():
     Output('strategy-founded', 'children'),
     Input('find-strategy-button', 'n_clicks'),
     State('choose-strategy', 'value'),
-    State('input-bound', 'value'),    
+    State('choose-bound-dict', 'children'),   
     prevent_initial_call=True
 )
 def find_strategy(n_clicks, algo:str, bound:dict):
     """This function is when the user search a str."""
-    bound = {"cost": 10, "working_hours": 12}
-    if bound == {} or bound == '' or bound == None:
+    if bound == {} or bound == None:
         return html.P(f'Insert a bound dictionary to find the strategy.')
+    #bound = {"cost": 10, "working_hours": 12}
     if cs.checkCorrectSyntax(**bpmn_lark) and cs.check_algo_is_usable(bpmn_lark[TASK_SEQ],algo):
         finded_strategies = at.calc_strat(bpmn_lark, bound, algo)
         if finded_strategies == {}: 
             return html.P(f'No strategies found')
         else:
-           return html.P(f'Strategies: {finded_strategies[list(finded_strategies.keys())[0]]}') 
+           return html.P(f'Strategies: {finded_strategies[list(finded_strategies.keys())[0]]},,,,,, ') 
     else:
         return html.P(f'Ops! Seems that your diagram is too complex for this algorithm. Please check your syntax or try with another algorithm.')
 
@@ -141,19 +141,20 @@ def find_strategy(n_clicks, algo:str, bound:dict):
     prevent_initial_call=True
 )
 def create_sese_diagram(nclick, task , impacts= {}, durations = {}):
-    #print(durations)
+    
+    
     #check the syntax of the input if correct print the diagram otherwise an error message 
-    try:
-        if task == '' or task == None:
-            return None
+    try:   
         bpmn_lark[TASK_SEQ] = task
-        bpmn_lark[H] = durations
-        bpmn_lark[IMPACTS] = impacts
-    except:
+        # bpmn_lark[H] = {} 
+        bpmn_lark[IMPACTS] = cs.extract_impacts_dict(impacts) 
+        bpmn_lark[DURATIONS] = cs.create_duration_dict(task=task, durations=durations) 
+    except Exception as e:
+        print(f'Error while parsing the bpmn: {e}')
         return None
     if cs.checkCorrectSyntax(**bpmn_lark):
-        tasks = cs.extract_tasks(bpmn_lark[TASK_SEQ])
-        print(tasks)
+        
+        #print(tasks, bpmn_lark[TASK_SEQ])
         # Create a new SESE Diagram from the input
         img = print_sese_diagram(**bpmn_lark) 
         fig = px.imshow(img=img) 
@@ -179,6 +180,7 @@ def add_task(tasks_):
         return []
 
     tasks_list = cs.extract_tasks(tasks_)
+    #tasks_list = tasks_list.filter(lambda x: x != ' ' and x != '')
     task_data = []
     for i, task in enumerate(tasks_list):
         task_data.append({
@@ -195,16 +197,10 @@ def add_task(tasks_):
                 }
             )
         })
-    # task_data = dbc.Table.from_dataframe(        
-    #     pd.DataFrame(task_data),
-    #     id = 'durations-task-table',
-    #     style = {'width': '100%', 'textalign': 'center'}
-    # )
-    # return task_data
     return dbc.Table.from_dataframe(        
         pd.DataFrame(task_data),
         id = 'durations-task-table',
-        style = {'width': '100%', 'textalign': 'center'}
+        style = {'width': '100%', }
     )
 
 
@@ -235,6 +231,7 @@ def add_task(n_clicks, impacts):
             'Set Input': dcc.Input(
                 id=f'range-slider-{i}',
                 type='number',
+                value=10,
                 min= min_duration,
             )
         })

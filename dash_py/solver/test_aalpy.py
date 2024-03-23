@@ -171,13 +171,14 @@ def automata_search_strategy(bpmn: dict, bound: list[int]) -> str:
         ag = AutomatonGraph(mealy, sul)    
         solver = GameSolver(ag, bound)
         winning_set = solver.compute_winning_final_set()
+        print('winning set:')
+        print(winning_set)
         if winning_set != None: 
-            s = "\n\nA strategy could be found\n"
-            print(s)
+            s = f"A strategy could be found, which is : {winning_set}"
             return s
         else: 
             s = "\n\nFor this specific instance a strategy does not exist\n"
-            print(s)
+            
             return s
     except Exception as e:
         print(f'test failed: {e}')

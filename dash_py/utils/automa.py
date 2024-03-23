@@ -2,7 +2,7 @@ from random import randint
 
 from utils.env import ALGORITHMS
 from solver.test_aalpy import automata_search_strategy
-
+from utils import check_syntax as cs
 " Here the automata is called to calculate the strategies for the process "
 def calc_strat(bpmn:dict, bound:dict, algo:str) -> dict:
     print('calc_strat...')
@@ -11,25 +11,11 @@ def calc_strat(bpmn:dict, bound:dict, algo:str) -> dict:
     if bpmn['expression'] == '':
         return strategies
     bound_list = []
-    # checkings 
-    for key,value in bound.items():
-        print(value, key)
-        if key == '' or key == None:
-            strategies['error'] = "The bound is empty or None"
-            return strategies  # If there are no bound available, we can't calculate the strategies
-        else:
-            #print('checking... value',type(value), isinstance(value, int), isinstance(value, float))
-            try:
-                if isinstance(value, int) and value >= 0:
-                    bound_list.append(value)
-                else:
-                    strategies['error'] = "The bound contains not int value that are not greater than zero"
-                    return strategies # The bounds must be integers greater than zero
-            except Exception as e:
-                print(f'Error while parsing the bound: {e}')
-                strategies['error'] = "The bound contains not int value that are not greater than zero"
-                return strategies
-           
+    try:
+        bound_list = list(cs.extract_values_bound(bound))
+    except Exception as e:
+        print(f'Error while parsing the bound: {e}')
+        return strategies
     if bound_list == []:
         strategies['error'] = "The bound is empty or None"
         return strategies  # If there are no bound available, we can't calculate the strategies
@@ -65,7 +51,7 @@ def calc_strategy_paco(bpmn:dict, bound:list[int]) -> dict:
     try:
         print('testing...')
         strat = automata_search_strategy(bpmn, bound)
-        if strat == "\n\nA strategy could be found\n":
+        if strat.startswith("A strategy") :
             strategies['strat1'] = strat
         else:            
             return strategies
