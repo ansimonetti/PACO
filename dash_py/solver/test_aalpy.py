@@ -149,38 +149,74 @@ args = {
 #             print(s.state_id, k, impact)
 
 def automata_search_strategy(bpmn: dict, bound: list[int]) -> str:
+    """
+    This function takes a BPMN diagram and a bound as input, and returns a strategy for the automaton.
+    
+    Parameters:
+    bpmn (dict): The BPMN diagram represented as a dictionary.
+    bound (list[int]): The bound for the automaton.
+
+    Returns:
+    str: A string representing the strategy for the automaton.
+    """
     try:
+        # Parse the task sequence from the BPMN diagram
         tree = SESE_PARSER.parse(bpmn[TASK_SEQ])
+
+        # Convert the parsed tree into a custom tree and get the last ID
         custom_tree, last_id = Lark_to_CTree(tree, args[PROBABILITIES],
                                             args[IMPACTS], args[DURATIONS], 
                                             args[NAMES], args[DELAYS], h=args[H])
+
+        # Calculate the number of nodes in the tree
         number_of_nodes = last_id + 1
-        sul = VPChecker(custom_tree, number_of_nodes) #system under learning, with step, pre and post methods defined
+
+        # Create a system under learning (SUL) with the custom tree and number of nodes
+        sul = VPChecker(custom_tree, number_of_nodes)
+
+        # Get the accepted alphabet from the SUL
         input_al = sul.accepted_alphabet
 
+        # Create an equivalence oracle using a random walk
         eq_oracle = RandomWalkEqOracle(input_al, sul, num_steps=100, reset_after_cex=True, reset_prob=0.01)
-        #eq_oracle_2 = StatePrefixEqOracle(input_al, sul, walks_per_state=100, walk_len=100, depth_first=True)
 
+        # Learn the automaton using the L* algorithm
         learned_automaton= run_Lstar(input_al, sul, eq_oracle=eq_oracle, automaton_type=AUTOMATON_TYPE, cache_and_non_det_check=False,
                         print_level=1, max_learning_rounds=20)
+
+        # Save the learned automaton
         learned_automaton.save(PATH_AUTOMATON)
 
+        # Clean the automaton
         cleaner = gCleaner(PATH_AUTOMATON)
         cleaner.save_cleaned_dot_graph(PATH_AUTOMATON_CLEANED)
+
+        # Load the cleaned automaton
         mealy = load_automaton_from_file(path=PATH_AUTOMATON_CLEANED, automaton_type=AUTOMATON_TYPE, compute_prefixes=True)
-        ag = AutomatonGraph(mealy, sul)    
+
+        # Create an automaton graph with the cleaned automaton and the SUL
+        ag = AutomatonGraph(mealy, sul)
+
+        # Create a game solver with the automaton graph and the bound
         solver = GameSolver(ag, bound)
+
+        # Compute the winning final set
         winning_set = solver.compute_winning_final_set()
+
+        # Print the winning set
         print('winning set:')
         print(winning_set)
+
+        # If a winning set exists, return a strategy
         if winning_set != None: 
             s = f"A strategy could be found, which is : {winning_set}"
             return s
         else: 
+            # If no winning set exists, return a message indicating that no strategy exists
             s = "\n\nFor this specific instance a strategy does not exist\n"
-            
             return s
     except Exception as e:
-        print(f'test failed: {e}')
-        s = "Error in calculate the strategy"
+        # If an error occurs, print the error and return a message indicating that an error occurred
+        print(f'test failed in PACO execution : {e}')
+        s = f'Error! Test failed in PACO execution : {e}'
         return s

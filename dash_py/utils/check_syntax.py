@@ -188,16 +188,40 @@ def extract_impacts_dict(impacts):
     """
     # Convert the string to a dictionary
     impacts = string_to_dict(impacts)
+    # add the missing keys with value 0
+    impacts = normalize_dict_impacts(impacts)
     # Initialize an empty dictionary
     impacts_dict = {}
     # Iterate over the items of the dictionary
     for key, value in impacts.items():
         # Map the key to a list of its integer values or an empty list
-        impacts_dict[key] = impacts_from_dict_to_list(value)
+        impacts_dict[key] = impacts_from_dict_to_list(value) 
     # Return the new dictionary
     return impacts_dict
         
+def normalize_dict_impacts(input_dict):
+    """
+    This function takes a dictionary where the value is another dictionary.
+    It checks if for all the values the dictionary is composed by the same keys.
+    If a key is missing from a value then it adds it with value 0.
 
+    Parameters:
+    input_dict (dict): The input dictionary.
+
+    Returns:
+    dict: The normalized dictionary.
+    """
+    # Get all unique keys in the sub-dictionaries
+    all_keys = set().union(*(sub_dict.keys() for sub_dict in input_dict.values()))
+
+    # Iterate over the sub-dictionaries
+    for sub_dict in input_dict.values():
+        # Add missing keys with value 0
+        for key in all_keys:
+            if key not in sub_dict:
+                sub_dict[key] = 0
+
+    return input_dict
 #######################
 
 ## BOUNDS
