@@ -8,3 +8,4 @@ aalpy
 graphviz
 networkx
 matplotlib
+dash-bootstrap-components

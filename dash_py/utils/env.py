@@ -40,7 +40,7 @@ CHAR_ACCEPTED = 0
 INVALID_CHAR = -1
 
 ALGORITHMS = {  # strategies with labels
-    's1': 'Algo PACO', 
+    's1': 'PACO', 
     's2': 'Strategy 2', 
     's3': 'Strategy 3'
 }

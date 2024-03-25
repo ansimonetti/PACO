@@ -19,17 +19,17 @@ def calc_strat(bpmn:dict, bound:dict, algo:str) -> dict:
     if bound_list == []:
         strategies['error'] = "The bound is empty or None"
         return strategies  # If there are no bound available, we can't calculate the strategies
-    args = {
-            'expression': "(Task1, Task2), (Task3, Task4)",
-            'impacts': {"Task1": [0,1], "Task2": [0,1], "Task3": [0,1], "Task4": [0,1]},
-            'names': {},
-            'probabilities': {},
-            'loop_thresholds': {},
-            'durations': {"Task1": 1, "Task2": 1, "Task3": 1, "Task4": 1},
-            'delays': {},
-            'h': 0
-        }
-    bpmn = args
+    # args = {
+    #         'expression': "(Task1, Task2), (Task3, Task4)",
+    #         'impacts': {"Task1": [0,1], "Task2": [0,1], "Task3": [0,1], "Task4": [0,1]},
+    #         'names': {},
+    #         'probabilities': {},
+    #         'loop_thresholds': {},
+    #         'durations': {"Task1": 1, "Task2": 1, "Task3": 1, "Task4": 1},
+    #         'delays': {},
+    #         'h': 0
+    #     }
+    # bpmn = args
     # calculate strategies
     try:
         print('testing...')
