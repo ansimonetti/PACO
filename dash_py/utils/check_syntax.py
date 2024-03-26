@@ -199,7 +199,7 @@ def extract_impacts_dict(impacts):
     # Return the new dictionary
     return impacts_dict
         
-def normalize_dict_impacts(input_dict):
+def normalize_dict_impacts(input_dict:dict):
     """
     This function takes a dictionary where the value is another dictionary.
     It checks if for all the values the dictionary is composed by the same keys.
@@ -209,19 +209,31 @@ def normalize_dict_impacts(input_dict):
     input_dict (dict): The input dictionary.
 
     Returns:
-    dict: The normalized dictionary.
+    dict: The dictionary with for each value has a list of all the costs.
     """
     # Get all unique keys in the sub-dictionaries
-    all_keys = set().union(*(sub_dict.keys() for sub_dict in input_dict.values()))
+    all_keys = order_keys(input_dict)
+    new_dict = {}
 
-    # Iterate over the sub-dictionaries
-    for sub_dict in input_dict.values():
-        # Add missing keys with value 0
-        for key in all_keys:
-            if key not in sub_dict:
-                sub_dict[key] = 0
+    # Iterate over the original dictionary
+    for key, sub_dict in input_dict.items():
+        # Create a new sub-dictionary for each key in the original dictionary
+        new_sub_dict = {}
+        for k in all_keys:
+            # If the key is in the original sub-dictionary, use its value
+            # Otherwise, use 0 as the value
+            new_sub_dict[k] = sub_dict.get(k, 0)
+        # Add the new sub-dictionary to the new dictionary
+        new_dict[key] = new_sub_dict
 
-    return input_dict
+    return new_dict
+
+def order_keys(impacts:dict):
+    all_keys = set().union(*(sub_dict.keys() for sub_dict in impacts.values()))
+    # sorting the keys
+    all_keys = sorted(list(all_keys))
+    return all_keys
+
 #######################
 
 ## BOUNDS
@@ -249,3 +261,23 @@ def extract_values_bound(input_dict):
     elif isinstance(input_dict, list):
         for item in input_dict:
             yield from extract_values_bound(item)
+
+
+def set_max_duration(durations:dict):
+    """
+    This function takes a dictionary where the value is a list of 2 elements.
+    It replaces each list with its last element.
+
+    Parameters:
+    durations (dict): The input dictionary where each value is a list of 2 elements.
+
+    Returns:
+    dict: The modified dictionary where each list value has been replaced with its last element.
+    """
+    # Iterate over the items in the dictionary
+    for key, value in durations.items():
+        print(key, value)
+        # If the value is a list with 2 elements, replace it with its last element
+        if isinstance(value, list) and len(value) == 2:
+            durations[key] = value[-1]
+    return durations

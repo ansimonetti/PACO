@@ -130,7 +130,7 @@ def find_strategy(n_clicks, algo:str, bound:dict):
             ]
     if cs.checkCorrectSyntax(**bpmn_lark) and cs.check_algo_is_usable(bpmn_lark[TASK_SEQ],algo):
         finded_strategies = at.calc_strat(bpmn_lark, bound, algo)
-        if finded_strategies == {}:
+        if finded_strategies == {}: 
             return [None,
                 dbc.Modal(
                     [
@@ -327,16 +327,12 @@ def add_task(n_clicks, impacts):
 
     # Convert the string of impacts into a dictionary and normalize it
     impacts = cs.string_to_dict(impacts)
-    impacts = cs.normalize_dict_impacts(impacts)
-
-    # Create a list of unique impacts
-    impacts_list = list(set(impact for impact in list(impacts.values())[0]))
-
+    all_keys = cs.order_keys(impacts)
     # Initialize an empty list to store the task data
     task_data = []
 
     # Iterate over the impacts
-    for i, task in enumerate(impacts_list):
+    for i, task in enumerate(all_keys):
         # For each impact, append a dictionary to the task data list
         # The dictionary contains the impact and an input field for the impact
         task_data.append({
