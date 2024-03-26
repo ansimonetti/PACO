@@ -10,6 +10,12 @@ def checkCorrectSyntax(expression:str, h = 0, probabilities={}, impacts={}, loop
     Check if the syntax of the BPMN file is correct.
     """
     print('checking syntax in progress...')
+    if expression == '' or expression is None:
+        return False
+    if not isinstance(durations, dict):
+        return False
+    if not isinstance(impacts, dict):
+        return False
     return True
 
 

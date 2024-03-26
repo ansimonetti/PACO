@@ -17,10 +17,10 @@ sese_diagram_grammar = r"""
     | sequential "," region -> sequential    
 
 ?region: 
-     | NAME   -> task
-     | "<" xor ">" -> loop
-     | "<" "[" NAME "]"  xor ">" -> loop_probability
-     | "(" xor ")"
+    | NAME   -> task
+    | "<" xor ">" -> loop
+    | "<" "[" NAME "]"  xor ">" -> loop_probability
+    | "(" xor ")"
 
 %import common.CNAME -> NAME
 %import common.NUMBER

@@ -11,9 +11,9 @@ from utils.env import ALGORITHMS, TASK_SEQ, IMPACTS, H, DURATIONS
 from utils.print_sese_diagram import print_sese_diagram
 
 dash.register_page(__name__, path='/')
-# SimpleTask1, Task1 || Task, rjfgkn ^ Task9
+# SimpleTask1, Task1 || Task, Task3 ^ Task9
 bpmn_lark = {
-    TASK_SEQ: 'SimpleTask, hello',
+    TASK_SEQ: 'SimpleTask1, Task1 || Task, Task3 ^ Task9',
     H: 0,
     IMPACTS: {},
 }
