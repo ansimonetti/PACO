@@ -1,6 +1,6 @@
 from random import randint
 
-from utils.env import ALGORITHMS, DURATIONS
+from utils.env import ALGORITHMS, DURATIONS, DELAYS, NAMES, PROBABILITIES
 from solver.test_aalpy import automata_search_strategy
 from utils import check_syntax as cs
 " Here the automata is called to calculate the strategies for the process "
@@ -42,7 +42,11 @@ def calc_strategy_paco(bpmn:dict, bound:list[int]) -> dict:
         print('testing PACO...')
         print(bound)
         # replace the duration list with the max duration
-        bpmn[DURATIONS] = cs.set_max_duration(bpmn[DURATIONS])
+        bpmn[DURATIONS] = cs.set_max_duration(bpmn[DURATIONS])        
+        bpmn[DELAYS]= {}
+        bpmn[NAMES]={}
+        bpmn[PROBABILITIES] = {}
+        print(bpmn)
         strat = automata_search_strategy(bpmn, bound)
         if strat.startswith("A strategy") :
             strategies['strat1'] = strat

@@ -164,9 +164,9 @@ def automata_search_strategy(bpmn: dict, bound: list[int]) -> str:
         tree = SESE_PARSER.parse(bpmn[TASK_SEQ])
 
         # Convert the parsed tree into a custom tree and get the last ID
-        custom_tree, last_id = Lark_to_CTree(tree, args[PROBABILITIES],
-                                            args[IMPACTS], args[DURATIONS], 
-                                            args[NAMES], args[DELAYS], h=args[H])
+        custom_tree, last_id = Lark_to_CTree(tree, bpmn[PROBABILITIES],
+                                            bpmn[IMPACTS], bpmn[DURATIONS], 
+                                            bpmn[NAMES], bpmn[DELAYS], h=bpmn[H])
 
         # Calculate the number of nodes in the tree
         number_of_nodes = last_id + 1
