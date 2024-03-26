@@ -217,6 +217,10 @@ def normalize_dict_impacts(input_dict:dict):
     Returns:
     dict: The dictionary with for each value has a list of all the costs.
     """
+    #######################
+    ### TODO!!! 
+    ## MIGLIORA USANDO MATRICI
+    #######################
     # Get all unique keys in the sub-dictionaries
     all_keys = order_keys(input_dict)
     new_dict = {}
