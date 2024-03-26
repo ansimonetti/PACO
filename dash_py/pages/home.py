@@ -9,12 +9,13 @@ from utils import check_syntax as cs
 from utils import automa as at
 from utils.env import ALGORITHMS, TASK_SEQ, IMPACTS, H, DURATIONS
 from utils.print_sese_diagram import print_sese_diagram
+#from solver.tree_lib import print_sese_custom_tree
 
 dash.register_page(__name__, path='/')
 # SimpleTask1, Task1 || Task, Task3 ^ Task9
 bpmn_lark = {
-    TASK_SEQ: 'SimpleTask1, Task1 || Task, Task3 ^ Task9',
-    H: 0,
+    TASK_SEQ: 'SimpleTask1, Task1 || Task, Task3 ^ [C1] Task9',
+    H: 0, # indicates the index of splitting to separate non-cumulative and cumulative impacts impact_vector[0:H] for cumulative impacts and impact_vector[H+1:] otherwise
     IMPACTS: {},
 }
 min_duration = 0
@@ -32,8 +33,8 @@ data = {
     )
 }
 
-width = 500
-height  = 250
+width = 1000
+height  = 500
 margin = dict(l=0, r=0, t=0, b=0)
 color = "rgba(0,0,0,0)"
 img = print_sese_diagram(**bpmn_lark)
@@ -46,9 +47,9 @@ def layout():
     return html.Div([
         html.Div(id='logging'),
         html.Div(id='logging-strategy'),
-        ############################
-        ### DEFINING THE BPMN + DCPI
-        ##############################
+        ################################
+        ### DEFINING THE BPMN + DCPI ###
+        ################################
         html.H1('Insert your BPMN file here:'),
         #dcc.Upload(id='upload-data', children=html.Div(['Drag and Drop or ', html.A('Select Files')]), multiple=False), # Drag and drop per file ma da usapre più avanti
         html.P("""Here is an example of a BPMN complete diagram with impacts and duration: {
@@ -69,17 +70,17 @@ def layout():
         dcc.Textarea(value='',  id = 'input-impacts', persistence=True, style={'width': '100%'}),
         html.Br(),
         html.Button('Create diagram', id='create-diagram-button'),
-        #####################
-        ### BPMN DIAGRAM USING LARK
-        ########################
+        ###############################
+        ### BPMN DIAGRAM USING LARK ###
+        ###############################
         html.Div([
             html.H3("BPMN diagram in lark:"),
             dcc.Graph(id='lark-diagram', figure=fig),
         ]),
         html.Br(),
-        ############################
-        ### STRATEGY
-        ##############################
+        ################
+        ### STRATEGY ###
+        ################
         html.Div(id="strategy", children=[
             html.H1("Choose the strategy to use:"),
             dcc.Dropdown(
@@ -206,6 +207,7 @@ def create_sese_diagram(n_clicks, task , impacts= {}, durations = {}):
         try:
             # Create a new SESE Diagram from the input
             img = print_sese_diagram(**bpmn_lark)
+            #img = print_sese_custom_tree(**bpmn_lark)
             fig = px.imshow(img=img)
             fig.update_layout(width=width, height=height, margin=margin, paper_bgcolor=color)
             fig.update_xaxes(showticklabels=False)

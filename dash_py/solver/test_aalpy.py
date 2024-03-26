@@ -67,19 +67,19 @@ os.environ["PATH"] += os.pathsep + 'C:/Program Files/Graphviz/bin/'
 # exdl = {"C1": np.Inf, "C2": 0, "C3": 0} #maximum delays for the choices
 # exp = {"N1": 0.2}
 
-ex = "(Task1, Task2), (Task3, Task4)"
-exi = {"Task1": [0,1], "Task2": [0,1], "Task3": [0,1], "Task4": [0,1]}
-exd = {"Task1": 1, "Task2": 1, "Task3": 1, "Task4": 1}
-exn = {}
-exdl = {} #maximum delays for the choices
-exp = {}
+# ex = "(Task1, Task2), (Task3, Task4)"
+# exi = {"Task1": [0,1], "Task2": [0,1], "Task3": [0,1], "Task4": [0,1]}
+# exd = {"Task1": 1, "Task2": 1, "Task3": 1, "Task4": 1}
+# exn = {}
+# exdl = {} #maximum delays for the choices
+# exp = {}
 
-# ex = "(Task1 ^ [N1] Task2) || (Task3 / [C1] Task4)"
-# exi = {"Task1": [1,1], "Task2": [0,1], "Task3": [2,1], "Task4": [0,1]}
-# exd = {"Task1": 3, "Task2": 1, "Task3": 3, "Task4": 4}
-# exn = {"C1": 'Choice1'}
-# exdl = {"C1": 2} #maximum delays for the choices
-# exp = {"N1":0.3}
+ex = "(Task1 ^ [N1] Task2) || (Task3 / [C1] Task4)"
+exi = {"Task1": [1,1], "Task2": [0,1], "Task3": [2,1], "Task4": [0,1]}
+exd = {"Task1": 3, "Task2": 1, "Task3": 3, "Task4": 4}
+exn = {"C1": 'Choice1'}
+exdl = {"C1": 2} #maximum delays for the choices
+exp = {"N1":0.3}
 
 # ex = "Task1 || (Task2, (Task3 / [C1] Task4))"
 # exi = {"Task1": [0,1], "Task2": [0,2], "Task3": [3,3], "Task4": [1,2]}

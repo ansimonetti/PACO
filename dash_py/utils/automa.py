@@ -19,13 +19,14 @@ def calc_strat(bpmn:dict, bound:dict, algo:str) -> dict:
         bound_list = list(cs.extract_values_bound(bound))
     except Exception as e:
         print(f'Error while parsing the bound: {e}')
+        strategies['error'] = f'Error while parsing the bound: {e}'
         return strategies
     if bound_list == []:
         strategies['error'] = "The bound is empty or None"
         return strategies
     # calculate strategies
     print('calculating strategies ...')
-    if algo == list(ALGORITHMS.keys())[0]:   
+    if algo == list(ALGORITHMS.keys())[0]:
         strategies = calc_strategy_paco(bpmn, bound_list)
     elif algo == list(ALGORITHMS.keys())[1]:
         strategies = calc_strategy_algo1(bpmn, bound_list)

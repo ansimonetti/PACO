@@ -7,8 +7,8 @@ sese_diagram_grammar = r"""
 ?start: xor
 
 ?xor: parallel
-    | xor "^" parallel -> xor
-    | xor "^" "[" NAME "]" parallel -> xor_probability
+    | xor "/" "[" NAME "]" parallel -> choice
+    | xor "^" "[" NAME "]" parallel -> natural
 
 ?parallel: sequential
     | parallel "||" sequential  -> parallel
@@ -47,7 +47,7 @@ ALGORITHMS = {  # strategies with labels
 
 ALL_SYNTAX = ['^', '||', '<', '>', '[]', ',', ''] # all syntax available xor, parallel, loop, adversary
 ALGORITHMS_MISSING_SYNTAX = { 
-    's2': ['<', '>', '||',], # NO LOOP and parallel
+    's2': ['<', '>', '||'], # NO LOOP and parallel
     's3': ['||', '<', '>', '[]', ',', ''] # ONLY XOR
 }
 #### PATHS ##############################
