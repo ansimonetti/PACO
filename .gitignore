@@ -1,3 +1,5 @@
 *.pyc
 dash_py/assets/d.png
+dash_py/assets/automaton.dot
+dash_py/assets/automaton_cleaned.dot
 venv
