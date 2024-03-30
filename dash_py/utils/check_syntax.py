@@ -2,7 +2,7 @@
 """
    File that checks things and useful things 
 """
-from utils.env import ALGORITHMS, ALGORITHMS_MISSING_SYNTAX, ALL_SYNTAX
+from utils.env import ALGORITHMS, ALGORITHMS_MISSING_SYNTAX, ALL_SYNTAX, SESE_PARSER
 import re
 import json
 def checkCorrectSyntax(expression:str, h = 0, probabilities={}, impacts={}, loop_thresholds = {}, durations = {}) -> bool:
@@ -45,6 +45,22 @@ def check_ONLY_1_taks(string: str) -> bool:
             return False
     return True
 
+def extract_tasks_recursively(lark_tree) -> list[str]:
+    tasks = []
+    if lark_tree.data == 'task':
+        tasks.append(lark_tree.children[0].value)
+    elif (lark_tree.data in {'choice', 'natural'}):
+        tasks.extend(extract_tasks_recursively(lark_tree.children[0]))
+        tasks.extend(extract_tasks_recursively(lark_tree.children[2]))
+    elif (lark_tree.data in {'sequential', 'parallel'}):
+        tasks.extend(extract_tasks_recursively(lark_tree.children[0]))
+        tasks.extend(extract_tasks_recursively(lark_tree.children[1]))
+    elif (lark_tree.data == 'loop'):
+        tasks.extend(extract_tasks_recursively(lark_tree.children[0]))
+    elif (lark_tree.data == 'loop_probability'):
+        tasks.extend(extract_tasks_recursively(lark_tree.children[1]))
+    return tasks
+
 def extract_tasks(expression: str) -> list[str]:
     """
         Function that extracts the tasks from the  BPMN expression.
@@ -52,22 +68,20 @@ def extract_tasks(expression: str) -> list[str]:
     if expression == '' or expression is None:
         return []
     #print(expression)
-    if check_ONLY_1_taks(expression):
-        print('only 1 task')
-        return expression
+    # if check_ONLY_1_taks(expression):
+    #     print('only 1 task')
+    #     return expression
     
     try: 
-       # Create a pattern that matches any of the syntax elements
-        pattern = '|'.join(map(re.escape, ALL_SYNTAX))
-        
-        # Use re.sub to replace all occurrences of the pattern with an empty string
-        tasks = re.sub(pattern, '', expression)
+        tree = SESE_PARSER.parse(expression) # parsing the expression to obtain the related tree
+
+        tasks = extract_tasks_recursively(tree) # recursively extracting task names from the lark tree
         
     except Exception as e:
-        print(f'Error while parsing the expression: {e}')
+        print(f'Error while parsing the expression: {e}') # May it be better to suppress this print?
         return []
     
-    return  [ t for t in tasks.split() if t  != ' ']
+    return tasks
 
 def string_to_dict(string) -> dict:
     """

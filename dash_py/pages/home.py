@@ -154,7 +154,7 @@ def find_strategy(n_clicks, algo:str, bound:dict):
                 ),
             ]
         else:
-           return html.P(f'Strategies: {finded_strategies[list(finded_strategies.keys())[0]]},,,,,, ')
+            return [html.P(f"Strategies: {finded_strategies['strat1']}"), None]
     else:
         return [None,
                 dbc.Modal(

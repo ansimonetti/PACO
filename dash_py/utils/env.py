@@ -45,10 +45,11 @@ ALGORITHMS = {  # strategies with labels
     's3': 'Strategy 3'
 }
 
-ALL_SYNTAX = ['^', '||', '<', '>', '[]', ',', ''] # all syntax available xor, parallel, loop, adversary
+ALL_SYNTAX = ['^', '/', '||', '<', '>', '[', ']', ',', '', '(', ')'] # all syntax characters available
 ALGORITHMS_MISSING_SYNTAX = { 
-    's2': ['<', '>', '||'], # NO LOOP and parallel
-    's3': ['||', '<', '>', '[]', ',', ''] # ONLY XOR
+    's1': ['<', '>'], # no LOOPs in PACO
+    's2': [],
+    's3': []
 }
 #### PATHS ##############################
 PATH_IMAGE_BPMN_LARK = 'assets/d.png'
@@ -64,8 +65,8 @@ DURATIONS = 'durations'
 DELAYS = 'delays'
 H = 'h'
 
-# 
+### Automaton parameters
 AUTOMATON_TYPE = 'mealy'
 ### SYNTAX
 LOOPS = 'loops'
-ADVERSARIES = 'adversaries'
+ADVERSARIES = 'adversaries' # not yet implemented, neither in the grammar
