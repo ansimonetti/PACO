@@ -7,7 +7,7 @@ import plotly.express as px
 
 from utils import check_syntax as cs
 from utils import automa as at
-from utils.env import ALGORITHMS, TASK_SEQ, IMPACTS, H, DURATIONS
+from utils.env import ALGORITHMS, TASK_SEQ, IMPACTS, H, DURATIONS, PROBABILITIES, NAMES
 from utils.print_sese_diagram import print_sese_diagram
 #from solver.tree_lib import print_sese_custom_tree
 
@@ -65,9 +65,12 @@ def layout():
             id = 'durations-task-table',
             style = {'width': '100%', 'textAlign': 'center'}
         ),
-        html.P('Insert the impacts of the tasks in the following format: {"SimpleTask":  {"cost": 10, "working_hours": 12}, "Task3":  {"cost": 18, "working_hours": 5} }. The values have to be integeres and only 1 value is allowed.'),
+        html.P('Insert the impacts of the tasks in the following format: {"SimpleTask":  {"cost": 10, "working_hours": 12}, "Task3":  {"cost": 18, "working_hours": 5} }. The values have to be integeres and only 1 value is allowed. IF for some task the impacts are not defined they will be put 0 by default.'),
         html.Div(id='impacts'),
         dcc.Textarea(value='',  id = 'input-impacts', persistence=True, style={'width': '100%'}),
+        html.Br(),
+        html.P('Insert the probabilities for each natural choise. The values have to be between 0 and 1.'),
+        html.Div(id= 'probabilities'),
         html.Br(),
         html.Button('Create diagram', id='create-diagram-button'),
         ###############################
@@ -180,22 +183,27 @@ def find_strategy(n_clicks, algo:str, bound:dict):
     State('input-bpmn', 'value'),
     State('input-impacts', 'value'),
     State('durations-task-table', 'children'),
+    State('probabilities', 'children'),
     prevent_initial_call=True,
 )
-def create_sese_diagram(n_clicks, task , impacts= {}, durations = {}):
+def create_sese_diagram(n_clicks, task , impacts= {}, durations = {}, probabilities = {}):
     #check the syntax of the input if correct print the diagram otherwise an error message
     try:
         bpmn_lark[TASK_SEQ] = task
         # bpmn_lark[H] = 0
-        bpmn_lark[IMPACTS] = cs.extract_impacts_dict(impacts)
+        bpmn_lark[IMPACTS] = cs.extract_impacts_dict(impacts, task)
         bpmn_lark[DURATIONS] = cs.create_duration_dict(task=task, durations=durations)
+        list_choises = cs.extract_choises(task)
+        bpmn_lark[PROBABILITIES] = cs.create_probabilities_dict(list_choises, probabilities)
+        bpmn_lark[NAMES] = cs.create_probabilities_names(list_choises)
+        #print('probabilities final:',bpmn_lark[PROBABILITIES])
     except Exception as e:
-        print(f'Error while parsing the bpmn: {e}')
+        print(f'Error at 1st step while parsing the bpmn: {e}')
         return [ None,# dbc.Alert(f'Error while parsing the bpmn: {e}', color="danger")]
                 dbc.Modal(
                     [
                         dbc.ModalHeader(dbc.ModalTitle("ERROR"), class_name="bg-danger"),
-                        dbc.ModalBody(f'Error while parsing the bpmn: {e}'),
+                        dbc.ModalBody(f'Error at 1st step while parsing the bpmn: {e}'),
                     ],
                     id="modal",
                     is_open=True,
@@ -203,10 +211,10 @@ def create_sese_diagram(n_clicks, task , impacts= {}, durations = {}):
             ]
     if cs.checkCorrectSyntax(**bpmn_lark):
 
-        print(bpmn_lark[IMPACTS])
+        print(bpmn_lark)
         try:
             # Create a new SESE Diagram from the input
-            img = print_sese_diagram(**bpmn_lark)
+            img = print_sese_diagram(**bpmn_lark) # missing printing choises
             #img = print_sese_custom_tree(**bpmn_lark)
             fig = px.imshow(img=img)
             fig.update_layout(width=width, height=height, margin=margin, paper_bgcolor=color)
@@ -342,7 +350,7 @@ def add_task(n_clicks, impacts):
             'Set Input': dcc.Input(
                 id=f'range-slider-{i}',
                 type='number',
-                value=10,
+                value=20,
                 min= min_duration,
             )
         })
@@ -352,5 +360,63 @@ def add_task(n_clicks, impacts):
     return dbc.Table.from_dataframe(
         pd.DataFrame(task_data),
         id = 'choose-bound-dict-df',
+        style = {'width': '100%', 'textalign': 'center'}
+    )
+
+
+#######################
+
+## ADD PROBABILITIES
+
+#######################
+
+@callback(
+    Output('probabilities', 'children'),
+    Input('input-bpmn', 'value'),
+)
+def add_probabilities(tasks_):
+    """
+    This function takes the bpmn, extract the choises and assign them with a probability.
+    Then, it creates a list of unique impacts and generates a table where each row contains an impact and an input field.
+    The function is decorated with a callback that updates the 'choose-bound-dict' component
+    whenever the 'create-diagram-button' is clicked and the 'input-impacts' value changes.
+
+    Parameters:
+    bpmn (str): The string of bpmn.
+
+    Returns:
+    dbc.Table: A table where each row contains an impact and an input field.
+    """
+    # If no tasks are provided, return an empty list
+    if not tasks_:
+        return []
+
+    # Extract the tasks from the input
+    tasks_list = cs.extract_choises(tasks_)
+
+    # Initialize an empty list to store the task data
+    task_data = []
+
+    # Iterate over the impacts
+    for i, task in enumerate(tasks_list):
+        # For each impact, append a dictionary to the task data list
+        # The dictionary contains the impact and an input field for the impact
+        task_data.append({
+            'Impacts': task,
+            'Set Input': dcc.Input(
+                id=f'range-slider-{i}',
+                type='number',
+                value=0.5,
+                step="0.01",
+                min= 0,
+                max=1
+            )
+        })
+
+    # Convert the task data list into a DataFrame and then into a Table component
+    # The Table component is returned and will be displayed in the 'choose-bound-dict' component
+    return dbc.Table.from_dataframe(
+        pd.DataFrame(task_data),
+        id = 'choose-prob',
         style = {'width': '100%', 'textalign': 'center'}
     )

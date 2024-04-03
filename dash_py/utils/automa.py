@@ -41,12 +41,9 @@ def calc_strategy_paco(bpmn:dict, bound:list[int]) -> dict:
     strategies = {}
     try:
         print('testing PACO...')
-        print(bound)
         # replace the duration list with the max duration
         bpmn[DURATIONS] = cs.set_max_duration(bpmn[DURATIONS])        
         bpmn[DELAYS]= {}
-        bpmn[NAMES]={}
-        bpmn[PROBABILITIES] = {}
         print(bpmn)
         strat = automata_search_strategy(bpmn, bound)
         if strat.startswith("A strategy") :

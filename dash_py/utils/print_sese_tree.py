@@ -2,7 +2,7 @@
 from lark import Tree, Token
 import pydot
 from PIL import Image
-from env import SESE_PARSER
+from utils.env import SESE_PARSER
 from utils.print_sese_diagram import dot_sese_diagram, dot_task, dot_exclusive_gateway, dot_loop_gateway, dot_parallel_gateway, dot_rectangle_node
 """
     funzioni prese dal notebook

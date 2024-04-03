@@ -5,7 +5,7 @@
 from utils.env import ALGORITHMS, ALGORITHMS_MISSING_SYNTAX, ALL_SYNTAX, SESE_PARSER
 import re
 import json
-def checkCorrectSyntax(expression:str, h = 0, probabilities={}, impacts={}, loop_thresholds = {}, durations = {}) -> bool:
+def checkCorrectSyntax(expression:str, h = 0, probabilities={}, impacts={}, loop_thresholds = {}, durations = {}, names = {}) -> bool:
     """
     Check if the syntax of the BPMN file is correct.
     """
@@ -78,7 +78,7 @@ def extract_tasks(expression: str) -> list[str]:
         tasks = extract_tasks_recursively(tree) # recursively extracting task names from the lark tree
         
     except Exception as e:
-        print(f'Error while parsing the expression: {e}') # May it be better to suppress this print?
+        #print(f'Error while parsing the expression: {e}') # May it be better to suppress this print?
         return []
     
     return tasks
@@ -184,7 +184,7 @@ def impacts_from_dict_to_list(dictionary:dict):
     # Convert the dictionary values to a list
     values = list(dictionary.values())
     # Print the list of values
-    print(values)
+    #print(values)
     # Check if all values are integers
     if all(isinstance(v, int) for v in values):
         # If all values are integers, return the list
@@ -195,7 +195,7 @@ def impacts_from_dict_to_list(dictionary:dict):
 # This function takes a string representation of a dictionary as input,
 # converts it to a dictionary, and maps each key to a list of its integer values.
 # If a key has non-integer values, it maps the key to an empty list.
-def extract_impacts_dict(impacts):
+def extract_impacts_dict(impacts, tasks):
     """
     Convert a string representation of a dictionary to a dictionary and map each key to a list of its integer values.
     If a key has non-integer values, it maps the key to an empty list.
@@ -216,6 +216,11 @@ def extract_impacts_dict(impacts):
     for key, value in impacts.items():
         # Map the key to a list of its integer values or an empty list
         impacts_dict[key] = impacts_from_dict_to_list(value) 
+    tasks = extract_tasks(tasks)
+    list_empty = [0]*len(list(impacts_dict.values())[0])
+    for t in tasks:
+        if t not in impacts_dict.keys():
+            impacts_dict[t] = list_empty
     # Return the new dictionary
     return impacts_dict
         
@@ -305,3 +310,65 @@ def set_max_duration(durations:dict):
         if isinstance(value, list) and len(value) == 2:
             durations[key] = value[-1]
     return durations
+
+
+#######################
+
+## PROBABILITIES
+
+########################
+def extract_choises(input_string):
+    """
+    This function takes a string and extracts all non-empty substrings that are inserted between square brackets.
+
+    Parameters:
+    input_string (str): The input string.
+
+    Returns:
+    list: A list of substrings found between square brackets.
+    """
+    # Use a regular expression to find all substrings between square brackets
+    choises = re.findall(r'\[(.*?)\]', input_string)
+
+    # Filter out empty strings
+    choises = [c for c in choises if c]
+
+    return choises
+
+def create_probabilities_dict(list_choises, prob:dict):
+    """
+    Create a dictionary mapping choices to probabilities.
+
+    Args:
+        list_choises (list): A list of choices.
+        prob (dict): A dictionary containing probabilities.
+
+    Returns:
+        dict: A dictionary mapping choices to probabilities.
+    """
+    prob = list(extract_value_durations(prob))
+    dict_prob = {}
+    for i, c in enumerate(list_choises):
+        dict_prob[c] = prob[i]
+    return dict_prob
+
+
+def create_probabilities_names(list_choises):    
+    """
+    Create a dictionary of probabilities with the given list of choices.
+
+    Args:
+        list_choises (list): A list of choices.
+
+    Returns:
+        dict: A dictionary of probabilities where each choice is mapped to itself.
+
+    Example:
+        >>> choices = ['A', 'B', 'C']
+        >>> create_probabilities_names(choices)
+        {'A': 'A', 'B': 'B', 'C': 'C'}
+    """
+    dict_prob = {}
+    for c in list_choises:
+        dict_prob[c] = c
+    return dict_prob
