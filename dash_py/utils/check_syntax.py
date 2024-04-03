@@ -5,7 +5,7 @@
 from utils.env import ALGORITHMS, ALGORITHMS_MISSING_SYNTAX, ALL_SYNTAX, SESE_PARSER
 import re
 import json
-def checkCorrectSyntax(expression:str, h = 0, probabilities={}, impacts={}, loop_thresholds = {}, durations = {}, names = {}) -> bool:
+def checkCorrectSyntax(expression:str, h = 0, probabilities={}, impacts={}, loop_thresholds = {}, durations = {}, names = {}, delays = {}) -> bool:
     """
     Check if the syntax of the BPMN file is correct.
     """
