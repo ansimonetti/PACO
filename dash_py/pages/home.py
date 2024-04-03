@@ -105,7 +105,8 @@ def layout():
                         dcc.Loading(
                             id="loading-strategy",
                             children=[html.Div([html.Div(id="strategy-founded")])],
-                            type="circle",
+                            type="circle", #'graph', 'cube', 'circle', 'dot', 'default'
+                            fullscreen=True,
                         )
                     ]
             )
