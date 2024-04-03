@@ -1,3 +1,4 @@
+import time
 import dash
 from dash import html, dcc, Input, Output,State, callback
 import dash_bootstrap_components as dbc
@@ -42,7 +43,7 @@ fig = px.imshow(img=img)
 fig.update_layout(width=width, height=height, margin=margin, paper_bgcolor=color)
 fig.update_xaxes(showticklabels=False)
 fig.update_yaxes(showticklabels=False)
-
+spinner = dbc.Spinner(color="primary", type="grow", fullscreen=True)
 def layout():
     return html.Div([
         html.Div(id='logging'),
@@ -72,7 +73,7 @@ def layout():
         html.P('Insert the probabilities for each natural choise. The values have to be between 0 and 1.'),
         html.Div(id= 'probabilities'),
         html.Br(),
-        html.Button('Create diagram', id='create-diagram-button'),
+        dbc.Button('Create diagram', id='create-diagram-button'),
         ###############################
         ### BPMN DIAGRAM USING LARK ###
         ###############################
@@ -98,13 +99,21 @@ def layout():
             html.Div(id= 'choose-bound-dict'),
             html.Br(),
             html.Br(),
-            html.Button('Find strategy', id='find-strategy-button'),
-            html.Div(id='strategy-founded')
+            dbc.Button('Find strategy', id='find-strategy-button'),
+            html.Div(
+                    children = [
+                        dcc.Loading(
+                            id="loading-strategy",
+                            children=[html.Div([html.Div(id="strategy-founded")])],
+                            type="circle",
+                        )
+                    ]
+            )
         ]),
         html.Br(),
-        html.Br(),
-    ])
-                
+        html.Br(),        
+    ]
+)
 
 
 #######################

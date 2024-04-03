@@ -305,7 +305,7 @@ def set_max_duration(durations:dict):
     """
     # Iterate over the items in the dictionary
     for key, value in durations.items():
-        print(key, value)
+        #print(key, value)
         # If the value is a list with 2 elements, replace it with its last element
         if isinstance(value, list) and len(value) == 2:
             durations[key] = value[-1]
