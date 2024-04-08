@@ -8,7 +8,7 @@ import plotly.express as px
 
 from utils import check_syntax as cs
 from utils import automa as at
-from utils.env import ALGORITHMS, TASK_SEQ, IMPACTS, H, DURATIONS, PROBABILITIES, NAMES
+from utils.env import ALGORITHMS, TASK_SEQ, IMPACTS, H, DURATIONS, PROBABILITIES, NAMES, DELAYS
 from utils.print_sese_diagram import print_sese_diagram
 #from solver.tree_lib import print_sese_custom_tree
 
@@ -72,6 +72,9 @@ def layout():
         html.Br(),
         html.P('Insert the probabilities for each natural choise. The values have to be between 0 and 1.'),
         html.Div(id= 'probabilities'),
+        html.Br(),
+        html.P('Insert the delays for each natural choise. The values have to be between 0 and 100.'),
+        html.Div(id= 'delays'),
         html.Br(),
         dbc.Button('Create diagram', id='create-diagram-button'),
         ###############################
@@ -194,9 +197,10 @@ def find_strategy(n_clicks, algo:str, bound:dict):
     State('input-impacts', 'value'),
     State('durations-task-table', 'children'),
     State('probabilities', 'children'),
+    State('delays', 'children'),
     prevent_initial_call=True,
 )
-def create_sese_diagram(n_clicks, task , impacts= {}, durations = {}, probabilities = {}):
+def create_sese_diagram(n_clicks, task , impacts= {}, durations = {}, probabilities = {}, delays = {}):
     #check the syntax of the input if correct print the diagram otherwise an error message
     try:
         bpmn_lark[TASK_SEQ] = task
@@ -206,7 +210,8 @@ def create_sese_diagram(n_clicks, task , impacts= {}, durations = {}, probabilit
         list_choises = cs.extract_choises(task)
         bpmn_lark[PROBABILITIES] = cs.create_probabilities_dict(list_choises, probabilities)
         bpmn_lark[NAMES] = cs.create_probabilities_names(list_choises)
-        #print('probabilities final:',bpmn_lark[PROBABILITIES])
+        bpmn_lark[DELAYS] = cs.create_probabilities_dict(list_choises, delays)
+        #print('delays final:',bpmn_lark[DELAYS])
     except Exception as e:
         print(f'Error at 1st step while parsing the bpmn: {e}')
         return [ None,# dbc.Alert(f'Error while parsing the bpmn: {e}', color="danger")]
@@ -357,7 +362,7 @@ def add_task(n_clicks, impacts):
         # The dictionary contains the impact and an input field for the impact
         task_data.append({
             'Impacts': task,
-            'Set Input': dcc.Input(
+            'Set Bound': dcc.Input(
                 id=f'range-slider-{i}',
                 type='number',
                 value=20,
@@ -413,13 +418,70 @@ def add_probabilities(tasks_):
         # The dictionary contains the impact and an input field for the impact
         task_data.append({
             'Impacts': task,
-            'Set Input': dcc.Input(
+            'Set Probabilities': dcc.Input(
                 id=f'range-slider-{i}',
                 type='number',
                 value=0.5,
                 step="0.01",
                 min= 0,
                 max=1
+            )
+        })
+
+    # Convert the task data list into a DataFrame and then into a Table component
+    # The Table component is returned and will be displayed in the 'choose-bound-dict' component
+    return dbc.Table.from_dataframe(
+        pd.DataFrame(task_data),
+        id = 'choose-prob',
+        style = {'width': '100%', 'textalign': 'center'}
+    )
+
+
+#######################
+
+## ADD DELAYS
+
+#######################
+
+@callback(
+    Output('delays', 'children'),
+    Input('input-bpmn', 'value'),
+)
+def add_delays(tasks_):
+    """
+    This function takes the bpmn, extract the choises and assign them with a delay.
+    Then, it creates a list of unique impacts and generates a table where each row contains an impact and an input field.
+    The function is decorated with a callback that updates the 'choose-bound-dict' component
+    whenever the 'create-diagram-button' is clicked and the 'input-impacts' value changes.
+
+    Parameters:
+    bpmn (str): The string of bpmn.
+
+    Returns:
+    dbc.Table: A table where each row contains an impact and an input field.
+    """
+    # If no tasks are provided, return an empty list
+    if not tasks_:
+        return []
+
+    # Extract the tasks from the input
+    tasks_list = cs.extract_choises(tasks_)
+
+    # Initialize an empty list to store the task data
+    task_data = []
+
+    # Iterate over the impacts
+    for i, task in enumerate(tasks_list):
+        # For each impact, append a dictionary to the task data list
+        # The dictionary contains the impact and an input field for the impact
+        task_data.append({
+            'Impacts': task,
+            'Set Delays': dcc.Input(
+                id=f'range-slider-{i}',
+                type='number',
+                value=0,
+                min= 0,
+                max=100
             )
         })
 
