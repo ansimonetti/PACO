@@ -28,16 +28,19 @@ def dot_sese_diagram(t, id = 0, h = 0, prob={}, imp={}, loops = {}):
         last_id = id_enter + 1
         child_ids = []
         for i, c in enumerate(t.children):
-            if (label != 'xor_probability' or i != 1) and (label != 'loop_probability' or i !=0 ):
+            if (label != 'natural' or i != 1) and (label != 'choice' or i != 1) and (label != 'loop_probability' or i !=0 ):
                 dot_code, enid, exid = dot_sese_diagram(c, last_id, h, prob, imp, loops)
                 code += f'\n {dot_code}'
                 child_ids.append((enid, exid))
                 last_id = exid + 1
         if label != "sequential":    
             id_exit = last_id
-            if label in {'xor', 'xor_probability'}:
+            if label == "choice":
                 code += dot_exclusive_gateway(id_enter)
                 code += dot_exclusive_gateway(id_exit)
+            elif label == 'natural':
+                code += dot_probabilistic_gateway(id_enter)
+                code += dot_probabilistic_gateway(id_exit)
             elif label in {'loop', 'loop_probability'}: 
                 code += dot_loop_gateway(id_enter)
                 if label == 'loop':
@@ -54,7 +57,7 @@ def dot_sese_diagram(t, id = 0, h = 0, prob={}, imp={}, loops = {}):
             id_enter = child_ids[0][0]
             id_exit = child_ids[-1][1]    
         edge_labels = ['','',''] 
-        if label == "xor_probability":
+        if label == "natural":
             prob_key = t.children[1].value
             edge_labels = [f'{prob[prob_key] if prob_key  in prob else 0.5 }',
                            f'{1 - prob[prob_key] if prob_key  in prob else 0.5 }']
@@ -98,7 +101,10 @@ def dot_task(id, name, h=0, imp=None):
     return f'node_{id}[label="{label}", shape=rectanble style="rounded,filled" fillcolor="lightblue"];'
 
 def dot_exclusive_gateway(id, label="X"):
-    return f'\n node_{id}[shape=diamond label={label} style="filled" fillcolor=orange];'    
+    return f'\n node_{id}[shape=diamond label={label} style="filled" fillcolor=orange];'
+
+def dot_probabilistic_gateway(id, label="N"):
+    return f'\n node_{id}[shape=diamond label={label} style="filled" fillcolor=orange];' 
 
 def dot_loop_gateway(id, label="X"):
     return f'\n node_{id}[shape=diamond label={label} style="filled" fillcolor=yellow];' 
