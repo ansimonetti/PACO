@@ -218,5 +218,5 @@ def automata_search_strategy(bpmn: dict, bound: list[int]) -> str:
     except Exception as e:
         # If an error occurs, print the error and return a message indicating that an error occurred
         print(f'test failed in PACO execution : {e}')
-        s = f'Error! Test failed in PACO execution : {e}'
+        s = f'Error! Finding the strategy failed in PACO execution : {e}'
         return s
