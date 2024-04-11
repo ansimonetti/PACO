@@ -64,7 +64,7 @@ LOOP_THRESHOLD = 'loop_threshold'
 DURATIONS = 'durations'
 DELAYS = 'delays'
 H = 'h'
-
+IMPACTS_NAMES ='impacts_names'
 ### Automaton parameters
 AUTOMATON_TYPE = 'mealy'
 ### SYNTAX

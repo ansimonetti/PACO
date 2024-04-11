@@ -2,19 +2,19 @@
 """
    File that checks things and useful things 
 """
-from utils.env import ALGORITHMS, ALGORITHMS_MISSING_SYNTAX, ALL_SYNTAX, SESE_PARSER
+from utils.env import ALGORITHMS, ALGORITHMS_MISSING_SYNTAX, ALL_SYNTAX, DURATIONS, IMPACTS, SESE_PARSER, TASK_SEQ
 import re
 import json
-def checkCorrectSyntax(expression:str, h = 0, probabilities={}, impacts={}, loop_thresholds = {}, durations = {}, names = {}, delays = {}) -> bool:
+def checkCorrectSyntax(bpmn:dict) -> bool:
     """
     Check if the syntax of the BPMN file is correct.
     """
     print('checking syntax in progress...')
-    if expression == '' or expression is None:
+    if bpmn[TASK_SEQ] == '' or bpmn[TASK_SEQ] is None:
         return False
-    if not isinstance(durations, dict):
+    if not isinstance(bpmn[DURATIONS], dict):
         return False
-    if not isinstance(impacts, dict):
+    if not isinstance(bpmn[IMPACTS], dict):
         return False
     return True
 
@@ -23,6 +23,7 @@ def check_algo_is_usable(expression: str, algo: str) -> bool:
     """
     Check if the costructs in the BPMN is suitable fro the algo.
     """
+    print('checking expression within algo in progress...')
     if expression == '' or algo == '' or algo not in ALGORITHMS.keys():
         return False
     if algo in ALGORITHMS_MISSING_SYNTAX.keys() and list(ALGORITHMS_MISSING_SYNTAX.get(algo)) != []:
@@ -30,8 +31,7 @@ def check_algo_is_usable(expression: str, algo: str) -> bool:
         for element in list(ALGORITHMS_MISSING_SYNTAX.get(algo)):
             #print(element)
             if element in expression:
-                return False               
-    print('checking expression within algo in progress...')
+                return False        
     return True
 
 def check_ONLY_1_taks(string: str) -> bool:

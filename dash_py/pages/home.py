@@ -8,7 +8,7 @@ import plotly.express as px
 
 from utils import check_syntax as cs
 from utils import automa as at
-from utils.env import ALGORITHMS, TASK_SEQ, IMPACTS, H, DURATIONS, PROBABILITIES, NAMES, DELAYS
+from utils.env import ALGORITHMS, IMPACTS_NAMES, TASK_SEQ, IMPACTS, H, DURATIONS, PROBABILITIES, NAMES, DELAYS
 from utils.print_sese_diagram import print_sese_diagram
 #from solver.tree_lib import print_sese_custom_tree
 
@@ -128,9 +128,10 @@ def layout():
     Input('find-strategy-button', 'n_clicks'),
     State('choose-strategy', 'value'),
     State('choose-bound-dict', 'children'),
+    State('input-impacts', 'value'),
     prevent_initial_call=True
 )
-def find_strategy(n_clicks, algo:str, bound:dict):
+def find_strategy(n_clicks, algo:str, bound:dict, impacts):
     """This function is when the user search a str."""
     if bound == {} or bound == None:
         return [html.P(f'Insert a bound dictionary to find the strategy.'),
@@ -143,7 +144,11 @@ def find_strategy(n_clicks, algo:str, bound:dict):
                     is_open=True,
                 ),
             ]
-    if cs.checkCorrectSyntax(**bpmn_lark) and cs.check_algo_is_usable(bpmn_lark[TASK_SEQ],algo):
+    if cs.checkCorrectSyntax(bpmn_lark) and cs.check_algo_is_usable(bpmn_lark[TASK_SEQ],algo):        
+        impacts = cs.string_to_dict(impacts)
+        all_keys = cs.order_keys(impacts)
+        bpmn_lark[IMPACTS_NAMES] = all_keys
+        print(bpmn_lark)
         finded_strategies = at.calc_strat(bpmn_lark, bound, algo)
         if finded_strategies == {}: 
             return [None,
@@ -212,7 +217,7 @@ def create_sese_diagram(n_clicks, task , impacts= {}, durations = {}, probabilit
         #print('delays final:',bpmn_lark[DELAYS])
     except Exception as e:
         print(f'Error at 1st step while parsing the bpmn: {e}')
-        return [ None,# dbc.Alert(f'Error while parsing the bpmn: {e}', color="danger")]
+        return [ None,  # dbc.Alert(f'Error while parsing the bpmn: {e}', color="danger")]
                 dbc.Modal(
                     [
                         dbc.ModalHeader(dbc.ModalTitle("ERROR"), class_name="bg-danger"),
@@ -222,7 +227,7 @@ def create_sese_diagram(n_clicks, task , impacts= {}, durations = {}, probabilit
                     is_open=True,
                 ),
             ]
-    if cs.checkCorrectSyntax(**bpmn_lark):
+    if cs.checkCorrectSyntax(bpmn_lark):
 
         print(bpmn_lark)
         try:

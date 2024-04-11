@@ -5,9 +5,9 @@ from utils.env import PATH_IMAGE_BPMN_LARK, SESE_PARSER
 """
     funzioni prese dal notebook
 """
-def print_sese_diagram(expression, h = 0, probabilities={}, impacts={}, loop_thresholds = {}, outfile=PATH_IMAGE_BPMN_LARK, graph_options = {}, durations = {}, names = {}, delays = {}):
+def print_sese_diagram(expression, h = 0, probabilities={}, impacts={}, loop_thresholds = {}, outfile=PATH_IMAGE_BPMN_LARK, graph_options = {}, durations = {}, names = {}, delays = {}, impacts_names = []):
     tree = SESE_PARSER.parse(expression)
-    diagram = wrap_sese_diagram(tree, h, probabilities, impacts, loop_thresholds)
+    diagram = wrap_sese_diagram(tree=tree, h=h, probabilities= probabilities,impacts= impacts, loop_thresholds=loop_thresholds)
     global_options = f'graph[ { ", ".join([k+"="+str(graph_options[k]) for k in graph_options])  } ];'
     dot_string = "digraph my_graph{ \n rankdir=LR; \n" + global_options + "\n" + diagram +"}"
     graphs = pydot.graph_from_dot_data(dot_string)

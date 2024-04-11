@@ -18,7 +18,7 @@ from solver.view_points import VPChecker
 from solver.tree_lib import CNode, CTree
 from solver.tree_lib import from_lark_parsed_to_custom_tree as Lark_to_CTree
 from solver.tree_lib import print_sese_custom_tree as print_sese_CTree
-from utils.env import AUTOMATON_TYPE, SESE_PARSER, TASK_SEQ, IMPACTS, NAMES, PROBABILITIES, DURATIONS, LOOP_THRESHOLD, DELAYS,H, PATH_AUTOMATON, PATH_AUTOMATON_CLEANED
+from utils.env import AUTOMATON_TYPE, SESE_PARSER, TASK_SEQ, IMPACTS, NAMES, PROBABILITIES, DURATIONS, LOOP_THRESHOLD, DELAYS,H, PATH_AUTOMATON, PATH_AUTOMATON_CLEANED, IMPACTS_NAMES
 from solver.gCleaner import gCleaner
 
 # import array_operations
@@ -173,7 +173,7 @@ def automata_search_strategy(bpmn: dict, bound: list[int]) -> str:
         print('Number of nodes:', number_of_nodes)
         # Create a system under learning (SUL) with the custom tree and number of nodes
         sul = VPChecker(custom_tree, number_of_nodes)
-        print('eseguito sul')
+        print('eseguito sul', sul, custom_tree)
         # Get the accepted alphabet from the SUL
         input_al = sul.accepted_alphabet
 
@@ -193,7 +193,7 @@ def automata_search_strategy(bpmn: dict, bound: list[int]) -> str:
         print('eseguito cleaner')
         # Load the cleaned automaton
         mealy = load_automaton_from_file(path=PATH_AUTOMATON_CLEANED, automaton_type=AUTOMATON_TYPE, compute_prefixes=True)
-        print('eseguito mealy', mealy, sul)
+        print('eseguito mealy')
         # Create an automaton graph with the cleaned automaton and the SUL
         ag = AutomatonGraph(mealy, sul)
         print('eseguito ag')
@@ -209,7 +209,9 @@ def automata_search_strategy(bpmn: dict, bound: list[int]) -> str:
 
         # If a winning set exists, return a strategy
         if winning_set != None: 
-            s = f"A strategy could be found, which is : {winning_set}"
+            print(bpmn)
+            impacts = "\n".join(f"{key}: {value}" for key, value in zip(bpmn[IMPACTS_NAMES], winning_set[0][1]))
+            s = f"A strategy could be found, which has as a total imact of : {impacts} "
             return s
         else: 
             # If no winning set exists, return a message indicating that no strategy exists

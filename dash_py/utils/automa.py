@@ -1,6 +1,4 @@
-from random import randint
-
-from utils.env import ALGORITHMS, DURATIONS, DELAYS, NAMES, PROBABILITIES
+from utils.env import ALGORITHMS, DURATIONS #, DELAYS, NAMES, PROBABILITIES
 from solver.test_aalpy import automata_search_strategy
 from utils import check_syntax as cs
 " Here the automata is called to calculate the strategies for the process "
