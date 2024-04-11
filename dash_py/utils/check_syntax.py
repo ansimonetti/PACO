@@ -317,6 +317,40 @@ def set_max_duration(durations:dict):
 ## PROBABILITIES
 
 ########################
+def extract_choises_nat(input_string):
+    """
+    This function takes a string and extracts all non-empty substrings that are inserted as ^ [...] simbolising the natural choises.
+
+    Parameters:
+    input_string (str): The input string.
+
+    Returns:
+    list: A list of substrings found between square brackets.
+    """
+    # Use a regular expression to find all substrings between square brackets
+    choises = re.findall(r'\^\s*\[(.*?)\]', input_string)
+
+    # Filter out empty strings
+    choises = [c for c in choises if c]
+
+    return choises
+def extract_choises_user(input_string):
+    """
+    This function takes a string and extracts all non-empty substrings that are inserted as / [...] simbolising the natural choises.
+
+    Parameters:
+    input_string (str): The input string.
+
+    Returns:
+    list: A list of substrings found between square brackets.
+    """
+    # Use a regular expression to find all substrings between square brackets
+    choises = re.findall(r'\/\s*\[(.*?)\]', input_string)
+
+    # Filter out empty strings
+    choises = [c for c in choises if c]
+
+    return choises
 def extract_choises(input_string):
     """
     This function takes a string and extracts all non-empty substrings that are inserted between square brackets.

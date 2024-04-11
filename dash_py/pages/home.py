@@ -54,12 +54,9 @@ def layout():
         ################################
         html.H1('Insert your BPMN file here:'),
         #dcc.Upload(id='upload-data', children=html.Div(['Drag and Drop or ', html.A('Select Files')]), multiple=False), # Drag and drop per file ma da usapre più avanti
-        html.P("""Here is an example of a BPMN complete diagram with impacts and duration: {
-            'expression':'Task1, Task2,Task3',
-            'impacts': {"Task1":  {"cost": 10, "working_hours": 12}, "Task2":  {"cost": 8, "working_hours": 6}, "Task3":  {"cost": 18, "working_hours": 5} },
-        }"""),
+        html.P("""Here is an example of a BPMN complete diagram: Task0, Task1 || Task4, (Task3 ^ [C1] Task9, Task8 / [C2] Task2)"""),
         html.Br(),
-        dcc.Textarea(value=bpmn_lark[TASK_SEQ], id = 'input-bpmn', style={'width': '100%'}), # persistance è obbligatoria altrimenti quando ricarica la pagina (cioè ogni valta che aggiorna il graph lark-diagram)
+        dcc.Textarea(value=bpmn_lark[TASK_SEQ], id = 'input-bpmn', style={'width': '100%'}, persistence = True), # persistence è obbligatoria altrimenti quando ricarica la pagina (cioè ogni valta che aggiorna il graph lark-diagram)
         html.P('Insert the duration of the tasks:'),
         html.Div(id='task-duration'),
         dbc.Table.from_dataframe(
@@ -209,9 +206,9 @@ def create_sese_diagram(n_clicks, task , impacts= {}, durations = {}, probabilit
         bpmn_lark[IMPACTS] = cs.extract_impacts_dict(impacts, task)
         bpmn_lark[DURATIONS] = cs.create_duration_dict(task=task, durations=durations)
         list_choises = cs.extract_choises(task)
-        bpmn_lark[PROBABILITIES] = cs.create_probabilities_dict(list_choises, probabilities)
+        bpmn_lark[PROBABILITIES] = cs.create_probabilities_dict(cs.extract_choises_nat(task), probabilities)
         bpmn_lark[NAMES] = cs.create_probabilities_names(list_choises)
-        bpmn_lark[DELAYS] = cs.create_probabilities_dict(list_choises, delays)
+        bpmn_lark[DELAYS] = cs.create_probabilities_dict(cs.extract_choises_user(task), delays)
         #print('delays final:',bpmn_lark[DELAYS])
     except Exception as e:
         print(f'Error at 1st step while parsing the bpmn: {e}')
@@ -408,7 +405,7 @@ def add_probabilities(tasks_):
         return []
 
     # Extract the tasks from the input
-    tasks_list = cs.extract_choises(tasks_)
+    tasks_list = cs.extract_choises_nat(tasks_)
 
     # Initialize an empty list to store the task data
     task_data = []
@@ -466,7 +463,7 @@ def add_delays(tasks_):
         return []
 
     # Extract the tasks from the input
-    tasks_list = cs.extract_choises(tasks_)
+    tasks_list = cs.extract_choises_user(tasks_)
 
     # Initialize an empty list to store the task data
     task_data = []

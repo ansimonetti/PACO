@@ -60,7 +60,7 @@ def dot_sese_diagram(t, id = 0, h = 0, prob={}, imp={}, loops = {}):
         if label == "natural":
             prob_key = t.children[1].value
             edge_labels = [f'{prob[prob_key] if prob_key  in prob else 0.5 }',
-                           f'{1 - prob[prob_key] if prob_key  in prob else 0.5 }']
+                           f'{round(1 - prob[prob_key], 2) if prob_key  in prob else 0.5 }']
         if label == "loop_probability":
             prob_key = t.children[0].value
             edge_labels = ['',f'{loops[prob_key] if prob_key  in loops else 0.5 }']
