@@ -211,7 +211,7 @@ def automata_search_strategy(bpmn: dict, bound: list[int]) -> str:
         if winning_set != None: 
             print(bpmn)
             impacts = "\n".join(f"{key}: {value}" for key, value in zip(bpmn[IMPACTS_NAMES], winning_set[0][1]))
-            s = f"A strategy could be found, which has as a total imact of : {impacts} "
+            s = f"A strategy could be found, which has as a medium imact of : {impacts} "
             return s
         else: 
             # If no winning set exists, return a message indicating that no strategy exists

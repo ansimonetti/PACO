@@ -48,7 +48,7 @@ def layout():
     return html.Div([
         html.Div(id='logging'),
         html.Div(id='logging-strategy'),
-        dbc.Alert("Disclaimer: This is not a definitive app! There may be some bugs or placeholders. Please be careful!", color="warning"),
+        dbc.Alert("Disclaimer: This is not a definitive app! There may be some bugs or placeholders. Please be careful! Moreover, the BPMN dimension supported varies among machines. So for big BPMN choose a very powerful PC. ", color="warning"),
         ################################
         ### DEFINING THE BPMN + DCPI ###
         ################################
