@@ -1,5 +1,6 @@
 from lark import Tree, Token
 import pydot
+from pydot import *
 from PIL import Image
 from utils.env import PATH_IMAGE_BPMN_LARK, SESE_PARSER
 """
@@ -11,9 +12,11 @@ def print_sese_diagram(expression, h = 0, probabilities={}, impacts={}, loop_thr
     global_options = f'graph[ { ", ".join([k+"="+str(graph_options[k]) for k in graph_options])  } ];'
     dot_string = "digraph my_graph{ \n rankdir=LR; \n" + global_options + "\n" + diagram +"}"
     graphs = pydot.graph_from_dot_data(dot_string)
-    graph = graphs[0]
+    graph = graphs[0]  
+    print(graph)  
     graph.write_png(outfile)
-    return Image.open(outfile)   
+    graph.write_svg('assets/graph.svg')
+    return  Image.open(outfile)   
 
 def dot_sese_diagram(t, id = 0, h = 0, prob={}, imp={}, loops = {}):
     if type(t) == Token:

@@ -1,11 +1,9 @@
-import time
 import dash
 from dash import html, dcc, Input, Output,State, callback
 import dash_bootstrap_components as dbc
-
+import dash_svg as svg
 import pandas as pd
 import plotly.express as px
-
 from utils import check_syntax as cs
 from utils import automa as at
 from utils.env import ALGORITHMS, IMPACTS_NAMES, TASK_SEQ, IMPACTS, H, DURATIONS, PROBABILITIES, NAMES, DELAYS
@@ -39,7 +37,9 @@ height  = 500
 margin = dict(l=0, r=0, t=0, b=0)
 color = "rgba(0,0,0,0)"
 img = print_sese_diagram(**bpmn_lark)
-fig = px.imshow(img=img)
+#img = PIL.Image.open(io.BytesIO(cairosvg.svg2png(bytestring= 'assets/graph.svg'))).convert("RGBA")
+print(img)
+fig = px.imshow(img = img, binary_format="svgimg", binary_compression_level=0)
 fig.update_layout(width=width, height=height, margin=margin, paper_bgcolor=color)
 fig.update_xaxes(showticklabels=False)
 fig.update_yaxes(showticklabels=False)
@@ -80,6 +80,9 @@ def layout():
         ###############################
         html.Div([
             html.H3("BPMN diagram in lark:"),
+            
+            html.Img(id='lark-diagram1', src= 'assets/graph.svg', style={'height': '500', 'width': '1000'}),
+            
             dcc.Graph(id='lark-diagram', figure=fig),
         ]),
         html.Br(),

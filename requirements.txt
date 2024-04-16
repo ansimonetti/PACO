@@ -10,3 +10,4 @@ networkx
 matplotlib
 dash-bootstrap-components
 pandas
+dash_svg

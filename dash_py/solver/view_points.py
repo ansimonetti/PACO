@@ -1,4 +1,4 @@
-from tree_lib import CTree
+from solver.tree_lib import CTree
 import numpy as np
 from aalpy.base import SUL
 
