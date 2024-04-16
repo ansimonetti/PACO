@@ -1,15 +1,8 @@
-from tree_lib import CTree
+from solver.tree_lib import CTree
 import numpy as np
 from aalpy.base import SUL
 
-MAX_DELAY = 1
-
-FAILED = False
-ADMITTED = True
-
-COMPLETE = 1
-CHAR_ACCEPTED = 0
-INVALID_CHAR = -1
+from utils.env import MAX_DELAY, FAILED, ADMITTED, COMPLETE, CHAR_ACCEPTED, INVALID_CHAR
 
 class BluePrint:
     # custom class for representing BluePrints
@@ -451,8 +444,6 @@ class VPChecker(SUL):
                 pp = vp.blueprint.pumping_points
                 var = vp.blueprint.variables
                 seq = vp.blueprint.sequences
-                if char == -1 and all([symbol[v] == -1 for v in var]):
-                    continue
                 if char == 2:
                     if self.types[id] != self.TASK:
                         if self.types[id] == self.CHOICE or self.types[id] == self.NATURAL:
