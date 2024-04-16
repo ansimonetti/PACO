@@ -15,5 +15,5 @@ from utils.print_sese_diagram import print_sese_diagram
 dash.register_page(__name__, path='/example')
 
 layout = html.Div([
-    html.P('This is the  page where an example is provided'),
+    html.P('This is the  page where an example is provided (Cutting, ( (Bending, (HP ^ [N1]LP ) ) || ( Milling, ( FD / [C1] RD))), (HPHS / [C2] LPLS))'),
 ])

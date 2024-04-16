@@ -15,7 +15,7 @@ import numpy as np
 from itertools import product
 
 from solver.view_points import VPChecker
-from solver.tree_lib import CNode, CTree
+from solver.tree_lib import CNode, CTree, print_sese_custom_tree
 from solver.tree_lib import from_lark_parsed_to_custom_tree as Lark_to_CTree
 from solver.tree_lib import print_sese_custom_tree as print_sese_CTree
 from utils.env import AUTOMATON_TYPE, SESE_PARSER, TASK_SEQ, IMPACTS, NAMES, PROBABILITIES, DURATIONS, LOOP_THRESHOLD, DELAYS,H, PATH_AUTOMATON, PATH_AUTOMATON_CLEANED, IMPACTS_NAMES
@@ -174,12 +174,13 @@ def automata_search_strategy(bpmn: dict, bound: list[int]) -> str:
         # Create a system under learning (SUL) with the custom tree and number of nodes
         sul = VPChecker(custom_tree, number_of_nodes)
         print('eseguito sul', sul, custom_tree)
+        #print_sese_custom_tree(custom_tree).show()
         # Get the accepted alphabet from the SUL
         input_al = sul.accepted_alphabet
 
         # Create an equivalence oracle using a random walk
         eq_oracle = RandomWalkEqOracle(input_al, sul, num_steps=100, reset_after_cex=True, reset_prob=0.01)
-        print('eseguito eq_oracle')
+        print('eseguito eq_oracle', sul.print_vp_list())
         # Learn the automaton using the L* algorithm
         learned_automaton= run_Lstar(input_al, sul, eq_oracle=eq_oracle, automaton_type=AUTOMATON_TYPE, cache_and_non_det_check=False,
                         print_level=1, max_learning_rounds=20)
@@ -210,7 +211,7 @@ def automata_search_strategy(bpmn: dict, bound: list[int]) -> str:
         # If a winning set exists, return a strategy
         if winning_set != None: 
             print(bpmn)
-            impacts = "\n".join(f"{key}: {value}" for key, value in zip(bpmn[IMPACTS_NAMES], winning_set[0][1]))
+            impacts = "\n".join(f"{key}: {round(value,2)}" for key, value in zip(bpmn[IMPACTS_NAMES], winning_set[0][1]))
             s = f"A strategy could be found, which has as a medium imact of : {impacts} "
             return s
         else: 

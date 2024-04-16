@@ -2,6 +2,7 @@
 """
    File that checks things and useful things 
 """
+from utils.print_sese_tree import print_sese_tree
 from utils.env import ALGORITHMS, ALGORITHMS_MISSING_SYNTAX, ALL_SYNTAX, DURATIONS, IMPACTS, SESE_PARSER, TASK_SEQ
 import re
 import json
@@ -16,6 +17,8 @@ def checkCorrectSyntax(bpmn:dict) -> bool:
         return False
     if not isinstance(bpmn[IMPACTS], dict):
         return False
+    tree = SESE_PARSER.parse(bpmn[TASK_SEQ])
+    print((tree).pretty())
     return True
 
 
