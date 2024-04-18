@@ -80,8 +80,8 @@ def layout():
         ###############################
         html.Div([
             html.H3("BPMN diagram in lark:"),
-            
-            html.Img(id='lark-diagram1', src= 'assets/graph.svg', style={'height': '500', 'width': '1000'}),
+            html.P("Seleziona risoluzione metti in graph.set(dpi, x) aggiungi download del file svg DA lunedì"), 
+            #html.Img(id='lark-diagram1', src= 'assets/graph.svg', style={'height': '500', 'width': '1000'}),
             
             dcc.Graph(id='lark-diagram', figure=fig),
         ]),

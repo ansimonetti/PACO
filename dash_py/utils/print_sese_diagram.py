@@ -13,9 +13,10 @@ def print_sese_diagram(expression, h = 0, probabilities={}, impacts={}, loop_thr
     dot_string = "digraph my_graph{ \n rankdir=LR; \n" + global_options + "\n" + diagram +"}"
     graphs = pydot.graph_from_dot_data(dot_string)
     graph = graphs[0]  
-    print(graph)  
-    graph.write_png(outfile)
-    graph.write_svg('assets/graph.svg')
+    #graph.write_svg('assets/graph.svg')
+    #print(graph)  
+    graph.set('dpi', '1000')
+    graph.write_png(outfile)    
     return  Image.open(outfile)   
 
 def dot_sese_diagram(t, id = 0, h = 0, prob={}, imp={}, loops = {}):
