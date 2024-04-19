@@ -18,11 +18,8 @@ a specified threshold. This work advances the capabilities of BPMN for enhanced 
 management, empowering better decision-making and resource allocation.
 
 ### PACO
-PACO is an algorithm that given a BPMN + DCPI  diagram and a bound impact vector can determine if there exists a feasible strategy such that the process can be completed while remaining under the bound vector.
+PACO is an algorithm that given a *BPMN + CPI*  diagram and a bound impact vector can determine if there exists a feasible strategy such that the process can be completed while remaining under the bound vector.
 
-Cose da fare
-- Probabilità per scelte errore
-- prob errata sugli archi
 
 ## Installation
 
@@ -39,10 +36,17 @@ To use PACO, you can  follow these steps:
     ```
 4. Open Chrome (or any othe  browser supporting HTML5) and go to `http://127.0.0.1:8050`.
 
+## AUTORS
+
+* **Chini Emanuele**
+* **Sala Pietro**
+* **Simonetti Andrea**
+* **Zare Omid**
+
 ## Contributing
 
 If you want to contribute to PACO, you can create your own branch and start programming.
 
 ## License
 
-PACO is licensed under MIT licence?
+PACO is licensed under MIT license.
