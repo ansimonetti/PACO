@@ -164,9 +164,6 @@ layout = html.Div([
             We now show how to build, for any given planning problem 𝑃 , an NFA over Σ that accepts exactly those words that are solutions for 𝑃 . Notice that the 𝑖th element of a
             word 𝑤 ∈ Σ∗ can be viewed as a snapshot of the values of the variables at the 𝑖th time-point of the plan associated with 𝑤.
             
-                     
-            ### How do we do it?
-                     You won't know cause it super-secret!!!! 
         '''),
     
         ], style={'padding': 10, 'flex': 1}
