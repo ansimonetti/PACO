@@ -13,12 +13,13 @@ import os, sys
 from IPython.display import display
 import numpy as np
 from itertools import product
+import pydot
 
 from solver.view_points import VPChecker
 from solver.tree_lib import CNode, CTree, print_sese_custom_tree
 from solver.tree_lib import from_lark_parsed_to_custom_tree as Lark_to_CTree
 from solver.tree_lib import print_sese_custom_tree as print_sese_CTree
-from utils.env import AUTOMATON_TYPE, SESE_PARSER, TASK_SEQ, IMPACTS, NAMES, PROBABILITIES, DURATIONS, LOOP_THRESHOLD, DELAYS,H, PATH_AUTOMATON, PATH_AUTOMATON_CLEANED, IMPACTS_NAMES
+from utils.env import AUTOMATON_TYPE, PATH_AUTOMATON_IMAGE, PATH_AUTOMATON_IMAGE_SVG, SESE_PARSER, TASK_SEQ, IMPACTS, NAMES, PROBABILITIES, DURATIONS, LOOP_THRESHOLD, DELAYS,H, PATH_AUTOMATON, PATH_AUTOMATON_CLEANED, IMPACTS_NAMES
 from solver.gCleaner import gCleaner
 
 # import array_operations
@@ -210,7 +211,12 @@ def automata_search_strategy(bpmn: dict, bound: list[int]) -> str:
 
         # If a winning set exists, return a strategy
         if winning_set != None: 
-            print(bpmn)
+            #print(bpmn)
+            graphs = pydot.graph_from_dot_file(PATH_AUTOMATON_CLEANED)
+            graph = graphs[0] 
+            graph.write_svg(PATH_AUTOMATON_IMAGE_SVG)
+            graph.set('dpi', 500)
+            graph.write_png(PATH_AUTOMATON_IMAGE)    
             impacts = "\n".join(f"{key}: {round(value,2)}" for key, value in zip(bpmn[IMPACTS_NAMES], winning_set[0][1]))
             s = f"A strategy could be found, which has as a medium imact of : {impacts} "
             return s

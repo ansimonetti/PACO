@@ -6,7 +6,7 @@ import pandas as pd
 import plotly.express as px
 from utils import check_syntax as cs
 from utils import automa as at
-from utils.env import ALGORITHMS, IMPACTS_NAMES, TASK_SEQ, IMPACTS, H, DURATIONS, PROBABILITIES, NAMES, DELAYS
+from utils.env import ALGORITHMS, IMPACTS_NAMES, PATH_AUTOMATON_IMAGE_SVG, TASK_SEQ, IMPACTS, H, DURATIONS, PROBABILITIES, NAMES, DELAYS
 from utils.print_sese_diagram import print_sese_diagram
 #from solver.tree_lib import print_sese_custom_tree
 
@@ -38,7 +38,7 @@ margin = dict(l=0, r=0, t=0, b=0)
 color = "rgba(0,0,0,0)"
 img = print_sese_diagram(**bpmn_lark)
 #img = PIL.Image.open(io.BytesIO(cairosvg.svg2png(bytestring= 'assets/graph.svg'))).convert("RGBA")
-print(img)
+#print(img)
 fig = px.imshow(img = img, binary_format="svgimg", binary_compression_level=0)
 fig.update_layout(width=width, height=height, margin=margin, paper_bgcolor=color)
 fig.update_xaxes(showticklabels=False)
@@ -176,7 +176,11 @@ def find_strategy(n_clicks, algo:str, bound:dict, impacts):
                 ),
             ]
         else:
-            return [html.P(f"Strategies: {finded_strategies['strat1']}"), None]
+            return [
+                html.Div([
+                    html.P(f"Strategies: {finded_strategies['strat1']}"),
+                    html.Img(src=PATH_AUTOMATON_IMAGE_SVG, style={'height': '500', 'width': '1000'}),
+                ]), None]
     else:
         return [None,
                 dbc.Modal(

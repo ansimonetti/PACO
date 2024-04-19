@@ -56,6 +56,8 @@ PATH_IMAGE_BPMN_LARK = 'assets/d.png'
 PATH_IMAGE_BPMN_LARK_SVG ='assets/bpmn.svg'
 PATH_AUTOMATON = 'assets/automaton.dot'
 PATH_AUTOMATON_CLEANED = 'assets/automaton_cleaned.dot'
+PATH_AUTOMATON_IMAGE = 'assets/automaton.png'
+PATH_AUTOMATON_IMAGE_SVG = 'assets/automaton.svg'
 ### args for tree LARK
 TASK_SEQ = 'expression'
 IMPACTS = 'impacts'

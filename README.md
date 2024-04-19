@@ -6,9 +6,10 @@
 As business processes become increasingly complex, effectively modeling decision points, their likelihood, and resource consumption is crucial for optimizing operations. 
 To address this challenge, this paper introduces a formal extension of the Business Process Model and Notation (BPMN) that incorporates choices, probabilities, and impacts, referred to as BPMN+CPI. This extension is motivated by the growing emphasis on precise control within business process management, where carefully selecting decision pathways is crucial. We propose a timeline-based semantics approach for BPMN+CPI, offering a temporal representation that is well-suited for analyzing process flows and decision points over time. The paper explores the implications of assuming that all costs, energies, and resources utilized are positive and exhibit additive characteristics and we demonstrate that this restriction contributes to favorable computational properties. Finally, the paper illustrates the role of probabilistic decision models in resource management through real-world examples. We implemented a tool capable of determining the existence of a strategy based on a timeline-based encoding of the process and a specified threshold. This work advances the capabilities of BPMN for enhanced business process management, empowering better decision-making and resource allocation.
 
-### SOLVER
+### Solver
 PACO is an algorithm that given a *BPMN + CPI*  diagram and a bound impact vector can determine if there exists a feasible strategy such that the process can be completed while remaining under the bound vector.
 
+![alt text](image.png)
 
 ## Installation
 
@@ -25,7 +26,7 @@ To use PACO, you can  follow these steps:
     ```
 4. Open Chrome (or any othe  browser supporting HTML5) and go to `http://127.0.0.1:8050`.
 
-## AUTORS
+## Authors
 
 * **prof. Sala Pietro**
 * **Chini Emanuele**
