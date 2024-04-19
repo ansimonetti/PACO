@@ -38,8 +38,8 @@ To use PACO, you can  follow these steps:
 
 ## AUTORS
 
-* **Chini Emanuele**
 * **Sala Pietro**
+* **Chini Emanuele**
 * **Simonetti Andrea**
 * **Zare Omid**
 
