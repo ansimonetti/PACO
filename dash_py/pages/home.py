@@ -48,11 +48,11 @@ def layout():
     return html.Div([
         html.Div(id='logging'),
         html.Div(id='logging-strategy'),
-        dbc.Alert("Disclaimer: This is not a definitive app! There may be some bugs or placeholders. Please be careful! Moreover, the BPMN dimension supported varies among machines. So for big BPMN choose a very powerful PC. ", color="warning"),
+        #dbc.Alert("Disclaimer: This is not a definitive app! There may be some bugs or placeholders. Please be careful! Moreover, the BPMN dimension supported varies among machines. So for big BPMN choose a very powerful PC. ", color="warning"),
         ################################
         ### DEFINING THE BPMN + DCPI ###
         ################################
-        html.H1('Insert your BPMN file here:'),
+        html.H1('Insert your BPMN here:'),
         #dcc.Upload(id='upload-data', children=html.Div(['Drag and Drop or ', html.A('Select Files')]), multiple=False), # Drag and drop per file ma da usapre più avanti
         html.P("""Here is an example of a BPMN complete diagram: Task0, Task1 || Task4, (Task3 ^ [C1] Task9, Task8 / [C2] Task2)"""),
         html.Br(),
@@ -90,7 +90,7 @@ def layout():
         ### STRATEGY ###
         ################
         html.Div(id="strategy", children=[
-            html.H1("Choose the strategy to use:"),
+            html.H1("Choose the algorithm to use:"),
             dcc.Dropdown(
                 id='choose-strategy',
                 options=[
