@@ -17,8 +17,8 @@ def checkCorrectSyntax(bpmn:dict) -> bool:
         return False
     if not isinstance(bpmn[IMPACTS], dict):
         return False
-    tree = SESE_PARSER.parse(bpmn[TASK_SEQ])
-    print((tree).pretty())
+    # tree = SESE_PARSER.parse(bpmn[TASK_SEQ])
+    # print((tree).pretty())
     return True
 
 

@@ -1,5 +1,6 @@
 import dash
-from dash import html, dcc, callback, Input, Output
+from dash import html, dcc
+import dash_bootstrap_components as dbc
 from utils.env import sese_diagram_grammar 
 dash.register_page(__name__)
 
@@ -38,6 +39,7 @@ layout = html.Div([
         html.Br(),
         html.H3('Task example of an adversary'),
         html.Img(src=dash.get_asset_url('examples/_SimpleAdversaryTask.png')),
+        dbc.Alert("Attention: The adversary here presented is only a theoretical concept. It has not been implemented nor it is found in the aformentioned grammar. ", color="warning"),        
         html.Br(),
         dcc.Markdown('''
                Each task has also a duration and an impact factor. Both are mandatory.
@@ -84,6 +86,7 @@ layout = html.Div([
         html.Br(),
         html.H3('Loop'),
         html.Img(src=dash.get_asset_url('examples/loop.png')),
+        dbc.Alert("Attention: The loop has not been implemented yet. ", color="warning"),        
         html.Br(),
         dcc.Markdown('''
 
@@ -153,20 +156,20 @@ layout = html.Div([
         html.Img(src=dash.get_asset_url('examples/taskimpacts_duration.png')),
         ], style={'padding': 10, 'flex': 1}
     ),
-    html.Div(id='Problem' ,children=[
+    # html.Div(id='Problem' ,children=[
 
-        dcc.Markdown('''
-            # Problem
-            Given a SPIN, and a bound EI decide whether or not there exists a winning strategy S for EI in SPIN.
-            Mettiamo strategia, definizioni ecc???
+    #     dcc.Markdown('''
+    #         # Problem
+    #         Given a SPIN, and a bound EI decide whether or not there exists a winning strategy S for EI in SPIN.
 
-            ## Solution - Automaton
-            We now show how to build, for any given planning problem 𝑃 , an NFA over Σ that accepts exactly those words that are solutions for 𝑃 . Notice that the 𝑖th element of a
-            word 𝑤 ∈ Σ∗ can be viewed as a snapshot of the values of the variables at the 𝑖th time-point of the plan associated with 𝑤.
+    #         ## Solution - Automaton
+    #         We now show how to build, for any given planning problem 𝑃 , an NFA over Σ that accepts exactly those words that are solutions for 𝑃 . Notice that the 𝑖th element of a
+    #         word 𝑤 ∈ Σ∗ can be viewed as a snapshot of the values of the variables at the 𝑖th time-point of the plan associated with 𝑤.
+    #         For more info read our paper.
             
-        '''),
+    #     '''),
     
-        ], style={'padding': 10, 'flex': 1}
-    ),
+    #     ], style={'padding': 10, 'flex': 1}
+    # ),
    
 ])

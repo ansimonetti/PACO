@@ -6,7 +6,7 @@ import pandas as pd
 import plotly.express as px
 from utils import check_syntax as cs
 from utils import automa as at
-from utils.env import ALGORITHMS, IMPACTS_NAMES, PATH_AUTOMATON_IMAGE_SVG, TASK_SEQ, IMPACTS, H, DURATIONS, PROBABILITIES, NAMES, DELAYS
+from utils.env import ALGORITHMS, IMPACTS_NAMES, PATH_AUTOMATON_IMAGE_SVG, PATH_IMAGE_BPMN_LARK_SVG, RESOLUTION, TASK_SEQ, IMPACTS, H, DURATIONS, PROBABILITIES, NAMES, DELAYS
 from utils.print_sese_diagram import print_sese_diagram
 #from solver.tree_lib import print_sese_custom_tree
 
@@ -37,8 +37,6 @@ height  = 500
 margin = dict(l=0, r=0, t=0, b=0)
 color = "rgba(0,0,0,0)"
 img = print_sese_diagram(**bpmn_lark)
-#img = PIL.Image.open(io.BytesIO(cairosvg.svg2png(bytestring= 'assets/graph.svg'))).convert("RGBA")
-#print(img)
 fig = px.imshow(img = img, binary_format="svgimg", binary_compression_level=0)
 fig.update_layout(width=width, height=height, margin=margin, paper_bgcolor=color)
 fig.update_xaxes(showticklabels=False)
@@ -48,7 +46,7 @@ def layout():
     return html.Div([
         html.Div(id='logging'),
         html.Div(id='logging-strategy'),
-        #dbc.Alert("Disclaimer: This is not a definitive app! There may be some bugs or placeholders. Please be careful! Moreover, the BPMN dimension supported varies among machines. So for big BPMN choose a very powerful PC. ", color="warning"),
+        dbc.Alert("Disclaimer: This is not a definitive app! There may be some bugs or placeholders. Please be careful! Moreover, the BPMN dimension supported varies among machines. So for big BPMN choose a powerful PC. ", color="warning"),
         ################################
         ### DEFINING THE BPMN + DCPI ###
         ################################
@@ -74,16 +72,20 @@ def layout():
         html.P('Insert the delays for each natural choise. The values have to be between 0 and 100.'),
         html.Div(id= 'delays'),
         html.Br(),
+        html.P('Insert the resolution of the diagram.'),
+        dbc.Input(id='resolution', type='number', placeholder='Insert the resolution of the diagram', value=RESOLUTION),
+        html.Br(),
         dbc.Button('Create diagram', id='create-diagram-button'),
         ###############################
         ### BPMN DIAGRAM USING LARK ###
         ###############################
         html.Div([
             html.H3("BPMN diagram in lark:"),
-            html.P("Seleziona risoluzione metti in graph.set(dpi, x) aggiungi download del file svg DA lunedì"), 
             #html.Img(id='lark-diagram1', src= 'assets/graph.svg', style={'height': '500', 'width': '1000'}),
             
             dcc.Graph(id='lark-diagram', figure=fig),
+            # download diagram as svg
+            html.A('Download diagram as SVG', id='download-diagram', download='diagram.svg', href=PATH_IMAGE_BPMN_LARK_SVG, target='_blank'),
         ]),
         html.Br(),
         ################
@@ -151,7 +153,7 @@ def find_strategy(n_clicks, algo:str, bound:dict, impacts):
         impacts = cs.string_to_dict(impacts)
         all_keys = cs.order_keys(impacts)
         bpmn_lark[IMPACTS_NAMES] = all_keys
-        print(bpmn_lark)
+        #print(bpmn_lark)
         finded_strategies = at.calc_strat(bpmn_lark, bound, algo)
         if finded_strategies == {}: 
             return [None,
@@ -208,22 +210,15 @@ def find_strategy(n_clicks, algo:str, bound:dict, impacts):
     State('durations-task-table', 'children'),
     State('probabilities', 'children'),
     State('delays', 'children'),
+    State('resolution', 'value'),
     prevent_initial_call=True,
 )
-def create_sese_diagram(n_clicks, task , impacts= {}, durations = {}, probabilities = {}, delays = {}):
+def create_sese_diagram(n_clicks, task , impacts= {}, durations = {}, probabilities = {}, delays = {}, resolution = RESOLUTION):
     #check the syntax of the input if correct print the diagram otherwise an error message
     try:
         bpmn_lark[TASK_SEQ] = task
-        # bpmn_lark[H] = 0
-        bpmn_lark[IMPACTS] = cs.extract_impacts_dict(impacts, task)
-        bpmn_lark[DURATIONS] = cs.create_duration_dict(task=task, durations=durations)
-        list_choises = cs.extract_choises(task)
-        bpmn_lark[PROBABILITIES] = cs.create_probabilities_dict(cs.extract_choises_nat(task), probabilities)
-        bpmn_lark[NAMES] = cs.create_probabilities_names(list_choises)
-        bpmn_lark[DELAYS] = cs.create_probabilities_dict(cs.extract_choises_user(task), delays)
-        #print('delays final:',bpmn_lark[DELAYS])
     except Exception as e:
-        print(f'Error at 1st step while parsing the bpmn: {e}')
+        print(f'Error at 1st step while parsing the BPMN tasks sequence: {e}')
         return [ None,  # dbc.Alert(f'Error while parsing the bpmn: {e}', color="danger")]
                 dbc.Modal(
                     [
@@ -234,12 +229,59 @@ def create_sese_diagram(n_clicks, task , impacts= {}, durations = {}, probabilit
                     is_open=True,
                 ),
             ]
+    try:
+        bpmn_lark[IMPACTS] = cs.extract_impacts_dict(impacts, task)
+        impacts = cs.string_to_dict(impacts)
+        all_keys = cs.order_keys(impacts)
+        bpmn_lark[IMPACTS_NAMES] = all_keys
+    except Exception as e:
+        print(f'Error at 1st step while parsing the BPMN impacts: {e}')
+        return [ None,  # dbc.Alert(f'Error while parsing the bpmn: {e}', color="danger")]
+                dbc.Modal(
+                    [
+                        dbc.ModalHeader(dbc.ModalTitle("ERROR"), class_name="bg-danger"),
+                        dbc.ModalBody(f'Error at 1st step while parsing the bpmn: {e}'),
+                    ],
+                    id="modal",
+                    is_open=True,
+                ),
+            ]
+    try:
+        bpmn_lark[DURATIONS] = cs.create_duration_dict(task=task, durations=durations)
+    except Exception as e:
+        print(f'Error at 1st step while parsing the BPMN durations: {e}')
+        return [ None, 
+                dbc.Modal(
+                    [
+                        dbc.ModalHeader(dbc.ModalTitle("ERROR"), class_name="bg-danger"),
+                        dbc.ModalBody(f'Error at 1st step while parsing the bpmn: {e}'),
+                    ],
+                    id="modal",
+                    is_open=True,
+                ),
+            ]
+    try:
+        list_choises = cs.extract_choises(task)
+        bpmn_lark[PROBABILITIES] = cs.create_probabilities_dict(cs.extract_choises_nat(task), probabilities)
+        bpmn_lark[NAMES] = cs.create_probabilities_names(list_choises)
+        bpmn_lark[DELAYS] = cs.create_probabilities_dict(cs.extract_choises_user(task), delays)
+    except Exception as e:
+        print(f'Error at 1st step while parsing the BPMN choises: {e}')
+        return [ None, 
+                dbc.Modal(
+                    [
+                        dbc.ModalHeader(dbc.ModalTitle("ERROR"), class_name="bg-danger"),
+                        dbc.ModalBody(f'Error at 1st step while parsing the bpmn: {e}'),
+                    ],
+                    id="modal",
+                    is_open=True,
+                ),
+            ]
     if cs.checkCorrectSyntax(bpmn_lark):
-
-        print(bpmn_lark)
+        #print(bpmn_lark)
         try:
             # Create a new SESE Diagram from the input
-            img = print_sese_diagram(**bpmn_lark) # missing printing choises
+            img = print_sese_diagram(**bpmn_lark, resolution_bpmn=resolution) # missing printing choises
             #img = print_sese_custom_tree(**bpmn_lark)
             fig = px.imshow(img=img)
             fig.update_layout(width=width, height=height, margin=margin, paper_bgcolor=color)
@@ -277,7 +319,7 @@ def create_sese_diagram(n_clicks, task , impacts= {}, durations = {}, probabilit
 
 @callback(
     Output('durations-task-table', 'children'), 
-    Input('input-bpmn', 'value')
+    Input('input-bpmn', 'value'),
 )
 def add_task(tasks_):
     """

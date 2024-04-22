@@ -1,6 +1,6 @@
 import time
 import dash
-from dash import html, dcc, Input, Output,State, callback
+from dash import html, dcc
 import dash_bootstrap_components as dbc
 
 import pandas as pd
@@ -22,10 +22,10 @@ layout = html.Div([
                  
             The diagram in our syntax will be written as: (Cutting, ( (Bending, (HP ^ [N1]LP ) ) || ( Milling, ( FD / [C1] RD))), (HPHS / [C2] LPLS))
             
-            > NB! Remember to put the () brackets around the regions to enhance  readability and secure the parsing.
-            
-            ![alt text](image.png)
-            
+    '''),
+    dbc.Alert(" Remember to put the () brackets around the regions to enhance  readability and secure the parsing. ", color='info'),
+    html.Img(src='assets/examples/bpmn_example.png', id='img-bpmn' , style={'height': '200', 'width': '400'}),
+    dcc.Markdown('''            
             The diagram consists of a single-entry-single-exit (SESE) region, with a choice, a probabilistic split, and an impact for each task. The goal is
             to find a strategy that has the overall impact of the process in the limit of the expected impact. Here we explain the process in more details and next we will see which path brings us to the winning strategy.
             The bracketed numbers next to each activity represent impact vectors [a, b] where a = cost of the task and b = hours/men required to complete the task. For instance, cutting the metal piece has the cost
@@ -33,7 +33,7 @@ layout = html.Div([
             example, there’s a high probability (0.8) of the process moving from bending to light polishing and a low probability (0.2) of it moving to fine heavy polishing.
             Imagine in this example our expected impact is 𝑒𝑖 = [155, 7.5] and we have to find a strategy that guarantees the overall impact of the process does not exceed the expected impact. A strategy (𝑆) is a
             winning one for a BPMN+CPI and a vector bound (𝑒𝑖) if and only if ∑ 𝑝(𝑐)𝐼(𝑐) ≤ 𝑒𝑖 with (𝑐) being the final computation. here we consider two different probable strategies examples that we can choose.
-            *Losing strategy example*: after cutting the metal piece we have two tasks after the parallel split node, so we do the bending and milling in parallel. then after milling we have two options to choose from, here
+            **Losing strategy example**: after cutting the metal piece we have two tasks after the parallel split node, so we do the bending and milling in parallel. then after milling we have two options to choose from, here
             we choose fine deposition. after bending we have two options to choose from, we choose light polishing with the probability of 0.8. 
             Then, we have two final task to choose from that we select LPLS painting.
             Finally, we have 𝐼 = [115, 11] ∗ 0.2 + [135, 8] ∗ 0.8 = [131, 8.6] > 𝑒𝑖, so by exceeding the 𝑒𝑖 this strategy fails to keep the overall impact below the expected impact.

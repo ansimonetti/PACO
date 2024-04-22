@@ -73,3 +73,5 @@ AUTOMATON_TYPE = 'mealy'
 ### SYNTAX
 LOOPS = 'loops'
 ADVERSARIES = 'adversaries' # not yet implemented, neither in the grammar
+# BPMN RESOLUTION #######################
+RESOLUTION = 300

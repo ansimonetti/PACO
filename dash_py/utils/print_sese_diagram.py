@@ -2,14 +2,14 @@ from lark import Tree, Token
 import pydot
 from pydot import *
 from PIL import Image
-from utils.env import PATH_IMAGE_BPMN_LARK, PATH_IMAGE_BPMN_LARK_SVG, SESE_PARSER
+from utils.env import PATH_IMAGE_BPMN_LARK, PATH_IMAGE_BPMN_LARK_SVG, SESE_PARSER, RESOLUTION
 """
     funzioni prese dal notebook
 """
 def print_sese_diagram(expression, h = 0, probabilities={}, impacts={}, loop_thresholds = {}, outfile=PATH_IMAGE_BPMN_LARK, outfile_svg = PATH_IMAGE_BPMN_LARK_SVG,
-                        graph_options = {}, durations = {}, names = {}, delays = {}, impacts_names = [], resolution_bpmn = '300'):
+                        graph_options = {}, durations = {}, names = {}, delays = {}, impacts_names = [], resolution_bpmn = RESOLUTION):
     tree = SESE_PARSER.parse(expression)
-    diagram = wrap_sese_diagram(tree=tree, h=h, probabilities= probabilities,impacts= impacts, loop_thresholds=loop_thresholds)
+    diagram = wrap_sese_diagram(tree=tree, h=h, probabilities= probabilities, impacts= impacts, loop_thresholds=loop_thresholds, durations=durations, names=names, delays=delays, impacts_names=impacts_names)
     global_options = f'graph[ { ", ".join([k+"="+str(graph_options[k]) for k in graph_options])  } ];'
     dot_string = "digraph my_graph{ \n rankdir=LR; \n" + global_options + "\n" + diagram +"}"
     graphs = pydot.graph_from_dot_data(dot_string)
@@ -20,21 +20,21 @@ def print_sese_diagram(expression, h = 0, probabilities={}, impacts={}, loop_thr
     graph.write_png(outfile)    
     return  Image.open(outfile)   
 
-def dot_sese_diagram(t, id = 0, h = 0, prob={}, imp={}, loops = {}):
+def dot_sese_diagram(t, id = 0, h = 0, prob={}, imp={}, loops = {}, dur = {}, imp_names = []):
     if type(t) == Token:
         label = t.value
-        return dot_task(id, label, h, imp[label] if label in imp else None), id, id
+        return dot_task(id, label, h, imp[label] if label in imp else None, dur[label] if label in dur else None, imp_names), id, id
     if type(t) == Tree:
         label = t.data
         if label == 'task':
-            return dot_sese_diagram(t.children[0], id, h, prob, imp, loops)
+            return dot_sese_diagram(t.children[0], id, h, prob, imp, loops, dur, imp_names)
         code = ""
         id_enter = id
         last_id = id_enter + 1
         child_ids = []
         for i, c in enumerate(t.children):
             if (label != 'natural' or i != 1) and (label != 'choice' or i != 1) and (label != 'loop_probability' or i !=0 ):
-                dot_code, enid, exid = dot_sese_diagram(c, last_id, h, prob, imp, loops)
+                dot_code, enid, exid = dot_sese_diagram(c, last_id, h, prob, imp, loops, dur, imp_names)
                 code += f'\n {dot_code}'
                 child_ids.append((enid, exid))
                 last_id = exid + 1
@@ -83,8 +83,8 @@ def dot_sese_diagram(t, id = 0, h = 0, prob={}, imp={}, loops = {}):
                     code += f'\n node_{child_ids[ei - 1][1]} -> node_{i[0]} [label="{edge_label}"];'              
     return code, id_enter, id_exit
 
-def wrap_sese_diagram(tree, h = 0, probabilities={}, impacts={}, loop_thresholds = {}):
-    code, id_enter, id_exit = dot_sese_diagram(tree, 0, h, probabilities, impacts, loop_thresholds)   
+def wrap_sese_diagram(tree, h = 0, probabilities={}, impacts={}, loop_thresholds = {}, durations={}, names={}, delays={}, impacts_names=[]):
+    code, id_enter, id_exit = dot_sese_diagram(tree, 0, h, probabilities, impacts, loop_thresholds, durations, imp_names = impacts_names)   
     code = '\n start[label="" style="filled" shape=circle fillcolor=palegreen1]' +   '\n end[label="" style="filled" shape=doublecircle fillcolor=orangered] \n' + code
     code += f'\n start -> node_{id_enter};'
     code += f'\n node_{id_exit} -> end;'
@@ -95,15 +95,19 @@ def get_tasks(t):
     v = {subtree.children[0].value for subtree in   filter(lambda x: x.data == 'task', trees)}
     return v
 
-def dot_task(id, name, h=0, imp=None):
+def dot_task(id, name, h=0, imp=None, dur=None, imp_names = []):
     label = name
-    if imp is not None:
+    #print(f"impacts in dot task : {imp}")
+    if imp is not None: # modifica per aggiungere impatti e durate in modo leggibile 
         if h == 0:
-            label += str(imp)
+            imp = " ".join(f"{key[0]}: {round(value,2)}" for key, value in zip(imp_names, imp))
+            label += f", impacts: {imp}"
+            label += f", dur: {str(dur)}"  
         else: 
             label += str(imp[0:-h])
-            label += str(imp[-h:])    
-    return f'node_{id}[label="{label}", shape=rectanble style="rounded,filled" fillcolor="lightblue"];'
+            label += str(imp[-h:]) 
+            label += f", dur:{str(dur)}"   
+    return f'\n node_{id}[label="{label}", shape=rectangle style="rounded,filled" fillcolor="lightblue"];'
 
 def dot_exclusive_gateway(id, label="X"):
     return f'\n node_{id}[shape=diamond label={label} style="filled" fillcolor=orange];'

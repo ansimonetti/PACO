@@ -12,7 +12,7 @@ PACO is an algorithm that given a *BPMN + CPI*  diagram and a bound impact vecto
 
 ## Installation
 
-To install PACO, you need to download the folder, install the required python packages.
+To install PACO, you need to download the folder, install the required python packages that can be found in the requirements.txt file.
 
 ## Usage
 
