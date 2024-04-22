@@ -52,7 +52,7 @@ def layout():
         ################################
         html.H1('Insert your BPMN here:'),
         #dcc.Upload(id='upload-data', children=html.Div(['Drag and Drop or ', html.A('Select Files')]), multiple=False), # Drag and drop per file ma da usapre più avanti
-        html.P("""Here is an example of a BPMN complete diagram: Task0, Task1 || Task4, (Task3 ^ [C1] Task9, Task8 / [C2] Task2)"""),
+        html.P("""Here is an example of a BPMN complete diagram: Task0, (Task1 || Task4), (Task3 ^ [C1] Task9, Task8 / [C2] Task2)"""),
         html.Br(),
         dcc.Textarea(value=bpmn_lark[TASK_SEQ], id = 'input-bpmn', style={'width': '100%'}, persistence = True), # persistence è obbligatoria altrimenti quando ricarica la pagina (cioè ogni valta che aggiorna il graph lark-diagram)
         html.P('Insert the duration of the tasks:'),

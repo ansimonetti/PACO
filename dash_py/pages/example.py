@@ -21,10 +21,13 @@ layout = html.Div([
             bending, polishing, depositioning, and painting a metal piece. 
                  
             The diagram in our syntax will be written as: (Cutting, ( (Bending, (HP ^ [N1]LP ) ) || ( Milling, ( FD / [C1] RD))), (HPHS / [C2] LPLS))
+            The associated impacts are: {"Cutting": {"cost": 10, "working_hours": 1}, "Bending":{"cost": 20, "working_hours": 1}, "Milling":{"cost": 50, "working_hours": 1},"HP":{"cost": 5, "working_hours": 4},"LP":{"cost": 5, "working_hours": 1}, "FD":{"cost": 30, "working_hours": 1}, "RD":{"cost": 10, "working_hours": 1}, "HPHS":{"cost": 40, "working_hours": 1}, "LPLS":{"cost": 20, "working_hours": 3}}
             
     '''),
     dbc.Alert(" Remember to put the () brackets around the regions to enhance  readability and secure the parsing. ", color='info'),
     html.Img(src='assets/examples/bpmn_example.png', id='img-bpmn' , style={'height': '200', 'width': '400'}),
+    html.H3("BPMN+CPI printed using Lark syntax"),
+    html.Img(src='assets/examples/lark_bpmn.svg', id='img-bpmn' , style={'height': '200', 'width': '400'}),
     dcc.Markdown('''            
             The diagram consists of a single-entry-single-exit (SESE) region, with a choice, a probabilistic split, and an impact for each task. The goal is
             to find a strategy that has the overall impact of the process in the limit of the expected impact. Here we explain the process in more details and next we will see which path brings us to the winning strategy.
