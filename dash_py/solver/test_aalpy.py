@@ -14,14 +14,14 @@ from IPython.display import display
 import numpy as np
 from itertools import product
 import pydot
-
+from datetime import datetime
 from solver.view_points import VPChecker
 from solver.tree_lib import CNode, CTree, print_sese_custom_tree
 from solver.tree_lib import from_lark_parsed_to_custom_tree as Lark_to_CTree
 from solver.tree_lib import print_sese_custom_tree as print_sese_CTree
 from utils.env import AUTOMATON_TYPE, PATH_AUTOMATON_IMAGE, PATH_AUTOMATON_IMAGE_SVG, RESOLUTION, SESE_PARSER, TASK_SEQ, IMPACTS, NAMES, PROBABILITIES, DURATIONS, LOOP_THRESHOLD, DELAYS,H, PATH_AUTOMATON, PATH_AUTOMATON_CLEANED, IMPACTS_NAMES
 from solver.gCleaner import gCleaner
-
+from explainer.explainer import explainer
 # import array_operations
 
 from solver.automaton_graph import AutomatonGraph
@@ -163,7 +163,7 @@ def automata_search_strategy(bpmn: dict, bound: list[int]) -> str:
     try:
         # Parse the task sequence from the BPMN diagram
         tree = SESE_PARSER.parse(bpmn[TASK_SEQ])
-
+        print(f'{datetime.now()} bound {bound}')
         # Convert the parsed tree into a custom tree and get the last ID
         custom_tree, last_id = Lark_to_CTree(tree, bpmn[PROBABILITIES],
                                             bpmn[IMPACTS], bpmn[DURATIONS], 
@@ -175,30 +175,30 @@ def automata_search_strategy(bpmn: dict, bound: list[int]) -> str:
         # Create a system under learning (SUL) with the custom tree and number of nodes
         sul = VPChecker(custom_tree, number_of_nodes)
         print('eseguito sul')
-        #print_sese_custom_tree(custom_tree).show() ,sul, custom_tree
+        print_sese_custom_tree(custom_tree)#.show() # ,sul, custom_tree
         # Get the accepted alphabet from the SUL
         input_al = sul.accepted_alphabet
 
         # Create an equivalence oracle using a random walk
         eq_oracle = RandomWalkEqOracle(input_al, sul, num_steps=100, reset_after_cex=True, reset_prob=0.01)
-        print('eseguito eq_oracle') #, sul.print_vp_list()
+        print(f'{datetime.now()} eseguito eq_oracle') #, sul.print_vp_list()
         # Learn the automaton using the L* algorithm
         learned_automaton= run_Lstar(input_al, sul, eq_oracle=eq_oracle, automaton_type=AUTOMATON_TYPE, cache_and_non_det_check=False,
-                        print_level=1, max_learning_rounds=20)
-        print('eseguito run_Lstar')
+                        print_level=2, max_learning_rounds=20)
+        print(f'{datetime.now()} eseguito run_Lstar')
         # Save the learned automaton
         learned_automaton.save(PATH_AUTOMATON)
 
         # Clean the automaton
         cleaner = gCleaner(PATH_AUTOMATON)
-        cleaner.save_cleaned_dot_graph(PATH_AUTOMATON_CLEANED)
-        print('eseguito cleaner')
+        cleaner.remove_null_nodes_from_graph()
+        print(f'{datetime.now()} eseguito cleaner')
         # Load the cleaned automaton
         mealy = load_automaton_from_file(path=PATH_AUTOMATON_CLEANED, automaton_type=AUTOMATON_TYPE, compute_prefixes=True)
         print('eseguito mealy')
         # Create an automaton graph with the cleaned automaton and the SUL
         ag = AutomatonGraph(mealy, sul)
-        print('eseguito ag')
+        print(f'{datetime.now()} eseguito ag')
         # Create a game solver with the automaton graph and the bound
         solver = GameSolver(ag, bound)
         print('eseguito solver')
@@ -206,19 +206,27 @@ def automata_search_strategy(bpmn: dict, bound: list[int]) -> str:
         winning_set = solver.compute_winning_final_set()
 
         # Print the winning set
-        print('winning set:')
+        print(f'{datetime.now()} winning set:')
         print(winning_set)
 
         # If a winning set exists, return a strategy
         if winning_set != None: 
-            #print(bpmn)
             graphs = pydot.graph_from_dot_file(PATH_AUTOMATON_CLEANED)
             graph = graphs[0] 
+            # color the winning nodes            
+            for el in winning_set: 
+                node = graph.get_node(el[0])[0]
+                node.set_style('filled')
+                node.set_fillcolor('green')            
+            
             graph.write_svg(PATH_AUTOMATON_IMAGE_SVG)
             graph.set('dpi', RESOLUTION)
-            graph.write_png(PATH_AUTOMATON_IMAGE)    
-            impacts = "\n".join(f"{key}: {round(value,2)}" for key, value in zip(bpmn[IMPACTS_NAMES], winning_set[0][1]))
-            s = f"A strategy could be found, which has as a medium imact of : {impacts} "
+            graph.write_png(PATH_AUTOMATON_IMAGE)   
+            expected_impacts = [s[1] for s in winning_set]
+            expected_impacts = [sum(values) for values in zip(*expected_impacts)]
+            impacts = "\n".join(f"{key}: {round(value,2)}" for key, value in zip(bpmn[IMPACTS_NAMES], expected_impacts))
+            s = f"A strategy could be found, which has as an expected imact of : {impacts} "
+            explainer(custom_tree)
             return s
         else: 
             # If no winning set exists, return a message indicating that no strategy exists

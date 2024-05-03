@@ -33,15 +33,8 @@ data = {
     )
 }
 
-width = 1000
-height  = 500
-margin = dict(l=0, r=0, t=0, b=0)
-color = "rgba(0,0,0,0)"
 img = print_sese_diagram(**bpmn_lark)
-fig = px.imshow(img = img, binary_format="svgimg", binary_compression_level=0)
-fig.update_layout(width=width, height=height, margin=margin, paper_bgcolor=color)
-fig.update_xaxes(showticklabels=False)
-fig.update_yaxes(showticklabels=False)
+
 spinner = dbc.Spinner(color="primary", type="grow", fullscreen=True)
 def layout():
     return html.Div([
@@ -55,7 +48,7 @@ def layout():
         #dcc.Upload(id='upload-data', children=html.Div(['Drag and Drop or ', html.A('Select Files')]), multiple=False), # Drag and drop per file ma da usapre più avanti
         html.P("""Here is an example of a BPMN complete diagram: Task0, (Task1 || Task4), (Task3 ^ [C1] Task9, Task8 / [C2] Task2)"""),
         html.Br(),
-        dcc.Textarea(value=bpmn_lark[TASK_SEQ], id = 'input-bpmn', style={'width': '100%'}, persistence = True), # persistence è obbligatoria altrimenti quando ricarica la pagina (cioè ogni valta che aggiorna il graph lark-diagram)
+        dcc.Textarea(value=bpmn_lark[TASK_SEQ], id = 'input-bpmn', style={'width': '100%'}, persistence = True), # persistence è obbligatoria altrimenti quando ricarica la pagina (cioè ogni valta che aggiorna il graph )
         html.P('Insert the duration of the tasks:'),
         html.Div(id='task-duration'),
         dbc.Table.from_dataframe(
@@ -65,6 +58,7 @@ def layout():
         ),
         html.P('Insert the impacts of the tasks in the following format: {"SimpleTask":  {"cost": 10, "working_hours": 12}, "Task3":  {"cost": 18, "working_hours": 5} }. The values have to be integeres and only 1 value is allowed. IF for some task the impacts are not defined they will be put 0 by default.'),
         html.Div(id='impacts'),
+        
         dcc.Textarea(value='',  id = 'input-impacts', persistence=True, style={'width': '100%'}),
         html.Br(),
         html.P('Insert the probabilities for each natural choise. The values have to be between 0 and 1.'),
@@ -73,9 +67,6 @@ def layout():
         html.P('Insert the delays for each natural choise. The values have to be between 0 and 100.'),
         html.Div(id= 'delays'),
         html.Br(),
-        html.P('Insert the resolution of the diagram.'),
-        dbc.Input(id='resolution', type='number', placeholder='Insert the resolution of the diagram', value=RESOLUTION),
-        html.Br(),
         dbc.Button('Create diagram', id='create-diagram-button'),
         ###############################
         ### BPMN DIAGRAM USING LARK ###
@@ -83,8 +74,6 @@ def layout():
         html.Div([
             html.H3("BPMN diagram in lark:"),
             #html.Img(id='lark-diagram1', src= 'assets/graph.svg', style={'height': '500', 'width': '1000'}),
-            
-            dcc.Graph(id='lark-diagram', figure=fig),
             html.Iframe(id="lark-frame",src=PATH_IMAGE_BPMN_LARK_SVG, style={'height': '100%', 'width': '100%'}),
             # download diagram as svg
             html.A('Download diagram as SVG', id='download-diagram', download='diagram.svg', href=PATH_IMAGE_BPMN_LARK_SVG, target='_blank'),
@@ -120,7 +109,15 @@ def layout():
             )
         ]),
         html.Br(),
-        html.Br(),        
+        html.Br(),      
+        ################
+        ### EXPLAINER ##
+        ################
+        # html.Div(id="explainer", children=[
+        #     html.H1("here the explainer:"),            
+        # ]),
+        # html.Br(),
+        # html.Br(),   
     ]
 )
 
@@ -183,7 +180,10 @@ def find_strategy(n_clicks, algo:str, bound:dict, impacts):
             return [
                 html.Div([
                     html.P(f"Strategies: {finded_strategies['strat1']}"),
-                    html.Img(src=PATH_AUTOMATON_IMAGE_SVG, style={'height': '500', 'width': '1000'}),
+                    html.Iframe(src=PATH_AUTOMATON_IMAGE_SVG, style={'height': '100%', 'width': '100%'}),
+                    # download diagram as svg
+                    html.A('Download strategy diagram as SVG', id='download-diagram', download='strategy.svg', href=PATH_AUTOMATON_IMAGE_SVG, target='_blank'),
+                    html.Img(src="assets/out.png"),
                 ]), None]
     else:
         return [None,
@@ -205,23 +205,22 @@ def find_strategy(n_clicks, algo:str, bound:dict, impacts):
 #########################
 
 @callback(
-    [Output('lark-diagram', 'figure'), Output('logging', 'children'), Output('lark-frame', 'src')],
+    [Output('logging', 'children'), Output('lark-frame', 'src')],
     Input('create-diagram-button', 'n_clicks'),
     State('input-bpmn', 'value'),
     State('input-impacts', 'value'),
     State('durations-task-table', 'children'),
     State('probabilities', 'children'),
     State('delays', 'children'),
-    State('resolution', 'value'),
     prevent_initial_call=True,
 )
-def create_sese_diagram(n_clicks, task , impacts= {}, durations = {}, probabilities = {}, delays = {}, resolution = RESOLUTION):
+def create_sese_diagram(n_clicks, task , impacts= {}, durations = {}, probabilities = {}, delays = {}):
     #check the syntax of the input if correct print the diagram otherwise an error message
     try:
         bpmn_lark[TASK_SEQ] = task
     except Exception as e:
         print(f'Error at 1st step while parsing the BPMN tasks sequence: {e}')
-        return [ None,  # dbc.Alert(f'Error while parsing the bpmn: {e}', color="danger")]
+        return [  # dbc.Alert(f'Error while parsing the bpmn: {e}', color="danger")]
                 dbc.Modal(
                     [
                         dbc.ModalHeader(dbc.ModalTitle("ERROR"), class_name="bg-danger"),
@@ -239,7 +238,7 @@ def create_sese_diagram(n_clicks, task , impacts= {}, durations = {}, probabilit
         bpmn_lark[IMPACTS_NAMES] = all_keys
     except Exception as e:
         print(f'Error at 1st step while parsing the BPMN impacts: {e}')
-        return [ None,  # dbc.Alert(f'Error while parsing the bpmn: {e}', color="danger")]
+        return [  # dbc.Alert(f'Error while parsing the bpmn: {e}', color="danger")]
                 dbc.Modal(
                     [
                         dbc.ModalHeader(dbc.ModalTitle("ERROR"), class_name="bg-danger"),
@@ -254,7 +253,7 @@ def create_sese_diagram(n_clicks, task , impacts= {}, durations = {}, probabilit
         bpmn_lark[DURATIONS] = cs.create_duration_dict(task=task, durations=durations)
     except Exception as e:
         print(f'Error at 1st step while parsing the BPMN durations: {e}')
-        return [ None, 
+        return [  
                 dbc.Modal(
                     [
                         dbc.ModalHeader(dbc.ModalTitle("ERROR"), class_name="bg-danger"),
@@ -272,7 +271,7 @@ def create_sese_diagram(n_clicks, task , impacts= {}, durations = {}, probabilit
         bpmn_lark[DELAYS] = cs.create_probabilities_dict(cs.extract_choises_user(task), delays)
     except Exception as e:
         print(f'Error at 1st step while parsing the BPMN choises: {e}')
-        return [ None, 
+        return [
                 dbc.Modal(
                     [
                         dbc.ModalHeader(dbc.ModalTitle("ERROR"), class_name="bg-danger"),
@@ -288,15 +287,10 @@ def create_sese_diagram(n_clicks, task , impacts= {}, durations = {}, probabilit
         try:
             # Create a new SESE Diagram from the input
             name_svg =  "assets/bpmnSvg/bpmn_"+ str(datetime.timestamp(datetime.now())) +".svg"
-            img = print_sese_diagram(**bpmn_lark, resolution_bpmn=resolution, outfile_svg=name_svg) 
-            #img = print_sese_custom_tree(**bpmn_lark)
-            fig = px.imshow(img=img)
-            fig.update_layout(width=width, height=height, margin=margin, paper_bgcolor=color)
-            fig.update_xaxes(showticklabels=False)
-            fig.update_yaxes(showticklabels=False)
-            return [fig , None, name_svg]
+            print_sese_diagram(**bpmn_lark, outfile_svg=name_svg) 
+            return [None, name_svg]
         except Exception as e:
-            return [None, #dbc.Alert(f'Error while creating the diagram: {e}', color="danger")
+            return [ #dbc.Alert(f'Error while creating the diagram: {e}', color="danger")
                     dbc.Modal(
                         [
                             dbc.ModalHeader(dbc.ModalTitle("ERROR"),  class_name="bg-danger"),
@@ -308,7 +302,7 @@ def create_sese_diagram(n_clicks, task , impacts= {}, durations = {}, probabilit
                     None
                 ]
     else:
-        return  [None, #dbc.Alert(f'Error in the syntax! Please check the syntax of the BPMN diagram.', color="danger")
+        return  [#dbc.Alert(f'Error in the syntax! Please check the syntax of the BPMN diagram.', color="danger")
                 dbc.Modal(
                     [
                         dbc.ModalHeader(dbc.ModalTitle("ERROR"),  class_name="bg-danger"),
@@ -343,6 +337,10 @@ def add_task(tasks_):
     Returns:
     list: A list of dictionaries, where each dictionary represents a task and its associated range slider.
     """
+    #########
+    ### TODO
+    ### CHECK WHY IT ADDS/APPENDS SPACES TO THE TABLE
+    #########
     # If no tasks are provided, return an empty list
     if not tasks_:
         return []
@@ -352,7 +350,7 @@ def add_task(tasks_):
 
     # Initialize an empty list to store the task data
     task_data = []
-
+    # print(f"task list {tasks_list}")
     # Iterate over the tasks
     for i, task in enumerate(tasks_list):
         # For each task, append a dictionary to the task data list
@@ -365,13 +363,13 @@ def add_task(tasks_):
                 max=max_duration,
                 value=value_interval,
                 marks=marks,
-                tooltip={
-                    "placement": "bottom",
-                    "always_visible": True,
-                }
+                # tooltip={
+                #     "placement": "bottom",
+                #     "always_visible": True,
+                # }
             )
         })
-
+    # print(task_data)
     # Convert the task data list into a DataFrame and then into a Table component
     # The Table component is returned and will be displayed in the 'durations-task-table' component
     return dbc.Table.from_dataframe(

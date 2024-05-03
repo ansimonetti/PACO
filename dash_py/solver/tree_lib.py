@@ -85,7 +85,7 @@ def from_lark_parsed_to_custom_tree(lark_tree, probabilities, impacts, durations
         #TO DO
         return None
     
-def print_sese_custom_tree(tree, h = 0, probabilities={}, impacts={}, loop_thresholds = {}, outfile="out.png"):
+def print_sese_custom_tree(tree, h = 0, probabilities={}, impacts={}, loop_thresholds = {}, outfile="assets/out.png"):
     tree = dot_tree(tree, h, probabilities, impacts, loop_thresholds)
     dot_string = "digraph my_graph{"+ tree +"}"
     graph = pydot.graph_from_dot_data(dot_string)[0]

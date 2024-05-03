@@ -1,3 +1,4 @@
+from datetime import datetime
 from utils.env import ALGORITHMS, DURATIONS #, DELAYS, NAMES, PROBABILITIES
 from solver.test_aalpy import automata_search_strategy
 from utils import check_syntax as cs
@@ -23,7 +24,6 @@ def calc_strat(bpmn:dict, bound:dict, algo:str) -> dict:
         strategies['error'] = "The bound is empty or None"
         return strategies
     # calculate strategies
-    print('calculating strategies ...')
     if algo == list(ALGORITHMS.keys())[0]:
         strategies = calc_strategy_paco(bpmn, bound_list)
     elif algo == list(ALGORITHMS.keys())[1]:
@@ -41,7 +41,7 @@ def calc_strategy_paco(bpmn:dict, bound:list[int]) -> dict:
         print('testing PACO...')
         # replace the duration list with the max duration
         bpmn[DURATIONS] = cs.set_max_duration(bpmn[DURATIONS])    
-        print(bpmn)
+        print(f'{datetime.now()} bpmn + cpi {bpmn}')
         strat = automata_search_strategy(bpmn, bound)
         if strat.startswith("A strategy") :
             strategies['strat1'] = strat
