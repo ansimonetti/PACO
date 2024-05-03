@@ -1,3 +1,4 @@
+from datetime import datetime
 import dash
 from dash import html, dcc, Input, Output,State, callback
 import dash_bootstrap_components as dbc
@@ -84,6 +85,7 @@ def layout():
             #html.Img(id='lark-diagram1', src= 'assets/graph.svg', style={'height': '500', 'width': '1000'}),
             
             dcc.Graph(id='lark-diagram', figure=fig),
+            html.Iframe(id="lark-frame",src=PATH_IMAGE_BPMN_LARK_SVG, style={'height': '100%', 'width': '100%'}),
             # download diagram as svg
             html.A('Download diagram as SVG', id='download-diagram', download='diagram.svg', href=PATH_IMAGE_BPMN_LARK_SVG, target='_blank'),
         ]),
@@ -203,7 +205,7 @@ def find_strategy(n_clicks, algo:str, bound:dict, impacts):
 #########################
 
 @callback(
-    [Output('lark-diagram', 'figure'), Output('logging', 'children')],
+    [Output('lark-diagram', 'figure'), Output('logging', 'children'), Output('lark-frame', 'src')],
     Input('create-diagram-button', 'n_clicks'),
     State('input-bpmn', 'value'),
     State('input-impacts', 'value'),
@@ -228,6 +230,7 @@ def create_sese_diagram(n_clicks, task , impacts= {}, durations = {}, probabilit
                     id="modal",
                     is_open=True,
                 ),
+                None
             ]
     try:
         bpmn_lark[IMPACTS] = cs.extract_impacts_dict(impacts, task)
@@ -245,6 +248,7 @@ def create_sese_diagram(n_clicks, task , impacts= {}, durations = {}, probabilit
                     id="modal",
                     is_open=True,
                 ),
+                None
             ]
     try:
         bpmn_lark[DURATIONS] = cs.create_duration_dict(task=task, durations=durations)
@@ -259,6 +263,7 @@ def create_sese_diagram(n_clicks, task , impacts= {}, durations = {}, probabilit
                     id="modal",
                     is_open=True,
                 ),
+                None
             ]
     try:
         list_choises = cs.extract_choises(task)
@@ -276,18 +281,20 @@ def create_sese_diagram(n_clicks, task , impacts= {}, durations = {}, probabilit
                     id="modal",
                     is_open=True,
                 ),
+                None
             ]
     if cs.checkCorrectSyntax(bpmn_lark):
         #print(bpmn_lark)
         try:
             # Create a new SESE Diagram from the input
-            img = print_sese_diagram(**bpmn_lark, resolution_bpmn=resolution) # missing printing choises
+            name_svg =  "assets/bpmnSvg/bpmn_"+ str(datetime.timestamp(datetime.now())) +".svg"
+            img = print_sese_diagram(**bpmn_lark, resolution_bpmn=resolution, outfile_svg=name_svg) 
             #img = print_sese_custom_tree(**bpmn_lark)
             fig = px.imshow(img=img)
             fig.update_layout(width=width, height=height, margin=margin, paper_bgcolor=color)
             fig.update_xaxes(showticklabels=False)
             fig.update_yaxes(showticklabels=False)
-            return [fig , None]
+            return [fig , None, name_svg]
         except Exception as e:
             return [None, #dbc.Alert(f'Error while creating the diagram: {e}', color="danger")
                     dbc.Modal(
@@ -298,6 +305,7 @@ def create_sese_diagram(n_clicks, task , impacts= {}, durations = {}, probabilit
                         id="modal",
                         is_open=True,
                     ),
+                    None
                 ]
     else:
         return  [None, #dbc.Alert(f'Error in the syntax! Please check the syntax of the BPMN diagram.', color="danger")
@@ -309,6 +317,7 @@ def create_sese_diagram(n_clicks, task , impacts= {}, durations = {}, probabilit
                     id="modal",
                     is_open=True,
                 ),
+                None
                 ]
 
 #######################

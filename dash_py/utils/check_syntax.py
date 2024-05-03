@@ -6,11 +6,12 @@ from utils.print_sese_tree import print_sese_tree
 from utils.env import ALGORITHMS, ALGORITHMS_MISSING_SYNTAX, ALL_SYNTAX, DURATIONS, IMPACTS, SESE_PARSER, TASK_SEQ
 import re
 import json
+from datetime import datetime
 def checkCorrectSyntax(bpmn:dict) -> bool:
     """
     Check if the syntax of the BPMN file is correct.
     """
-    print('checking syntax in progress...')
+    print(f'{datetime.now()}: checking syntax in progress... ')
     if bpmn[TASK_SEQ] == '' or bpmn[TASK_SEQ] is None:
         return False
     if not isinstance(bpmn[DURATIONS], dict):

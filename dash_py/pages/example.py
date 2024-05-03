@@ -31,7 +31,7 @@ layout = html.Div([
     html.Img(src='assets/examples/bpmn_example.png', width = "1000"),
     html.Br(),
     html.H3("BPMN+CPI printed using Lark syntax"),
-    html.Img(src='assets/examples/lark_bpmn.svg', width = "1000"),
+    html.Img(src='assets/examples/lark_bpmn.svg', width = "1500"),
     dcc.Markdown('''            
             The diagram consists of a single-entry-single-exit (SESE) region, with a choice, a probabilistic split, and an impact for each task. The goal is
             to find a strategy that has the overall impact of the process in the limit of the expected impact. Here we explain the process in more details and next we will see which path brings us to the winning strategy.
