@@ -211,9 +211,10 @@ def find_strategy(n_clicks, algo:str, bound:dict, impacts):
     State('durations-task-table', 'children'),
     State('probabilities', 'children'),
     State('delays', 'children'),
+    State('imacts-table', 'children'),
     prevent_initial_call=True,
 )
-def create_sese_diagram(n_clicks, task , impacts= {}, durations = {}, probabilities = {}, delays = {}):
+def create_sese_diagram(n_clicks, task , impacts, durations = {}, probabilities = {}, delays = {}, impacts_table = {}):
     #check the syntax of the input if correct print the diagram otherwise an error message
     try:
         bpmn_lark[TASK_SEQ] = task
@@ -232,9 +233,7 @@ def create_sese_diagram(n_clicks, task , impacts= {}, durations = {}, probabilit
             ]
     try:
         bpmn_lark[IMPACTS] = cs.extract_impacts_dict(impacts, task)
-        impacts = cs.string_to_dict(impacts)
-        all_keys = cs.order_keys(impacts)
-        bpmn_lark[IMPACTS_NAMES] = all_keys
+        bpmn_lark[IMPACTS_NAMES] = impacts.split(sep=',')
     except Exception as e:
         print(f'Error at 1st step while parsing the BPMN impacts: {e}')
         return [  # dbc.Alert(f'Error while parsing the bpmn: {e}', color="danger")]
