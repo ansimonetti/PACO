@@ -409,13 +409,12 @@ def add_task(n_clicks, impacts):
         return None
 
     # Convert the string of impacts into a dictionary and normalize it
-    impacts = cs.string_to_dict(impacts)
-    all_keys = cs.order_keys(impacts)
+    impacts = impacts.split(sep=',')
     # Initialize an empty list to store the task data
     task_data = []
 
     # Iterate over the impacts
-    for i, task in enumerate(all_keys):
+    for i, task in enumerate(impacts):
         # For each impact, append a dictionary to the task data list
         # The dictionary contains the impact and an input field for the impact
         task_data.append({
@@ -597,7 +596,6 @@ def add_impacts(tasks_, impacts):
 
         # Append the task data dictionary to the task data list
         task_data.append(task_dict)
-    print(task_data)
     # Convert the task data list into a DataFrame and then into a Table component
     # The Table component is returned and will be displayed in the 'choose-bound-dict' component
     return dbc.Table.from_dataframe(
