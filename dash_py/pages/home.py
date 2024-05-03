@@ -56,10 +56,9 @@ def layout():
             id = 'durations-task-table',
             style = {'width': '100%', 'textAlign': 'center'}
         ),
-        html.P('Insert the impacts of the tasks in the following format: {"SimpleTask":  {"cost": 10, "working_hours": 12}, "Task3":  {"cost": 18, "working_hours": 5} }. The values have to be integeres and only 1 value is allowed. IF for some task the impacts are not defined they will be put 0 by default.'),
-        html.Div(id='impacts'),
-        
+        html.P('Insert the impacts list of the tasks in the following format: cost, hours. IF for some task the impacts are not defined they will be put 0 by default.'),
         dcc.Textarea(value='',  id = 'input-impacts', persistence=True, style={'width': '100%'}),
+        html.Div(id='impacts-table'),
         html.Br(),
         html.P('Insert the probabilities for each natural choise. The values have to be between 0 and 1.'),
         html.Div(id= 'probabilities'),
@@ -544,6 +543,61 @@ def add_delays(tasks_):
             )
         })
 
+    # Convert the task data list into a DataFrame and then into a Table component
+    # The Table component is returned and will be displayed in the 'choose-bound-dict' component
+    return dbc.Table.from_dataframe(
+        pd.DataFrame(task_data),
+        id = 'choose-prob',
+        style = {'width': '100%', 'textalign': 'center'}
+    )
+
+
+#######################
+
+## ADD IMPACTS
+
+#######################
+
+@callback(
+    Output('impacts-table', 'children'),
+    Input('input-bpmn', 'value'),
+    Input('input-impacts', 'value'),
+)
+def add_impacts(tasks_, impacts):
+    """
+    """
+    # If no tasks are provided, return an empty list
+    if not tasks_:
+        return []
+
+    # Extract the tasks from the input
+    
+    if not tasks_:
+        return []
+    impacts = impacts.split(sep=',')
+    # Extract the tasks from the input
+    tasks_list = cs.extract_tasks(tasks_)
+    # Initialize an empty list to store the task data
+    task_data = []
+
+    # Iterate over the tasks
+    for i, task in enumerate(tasks_list):
+        # Initialize an empty dictionary to store the task data
+        task_dict = {'Task': task}
+
+        # Iterate over the impacts
+        for j, impact in enumerate(impacts):
+            # For each impact, add a slider to the task data dictionary
+            task_dict[impact] = dcc.Input(
+                id=f'range-slider-{i}-{j}',
+                type='number',
+                value=0,
+                min=0,
+            )
+
+        # Append the task data dictionary to the task data list
+        task_data.append(task_dict)
+    print(task_data)
     # Convert the task data list into a DataFrame and then into a Table component
     # The Table component is returned and will be displayed in the 'choose-bound-dict' component
     return dbc.Table.from_dataframe(
