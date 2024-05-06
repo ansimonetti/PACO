@@ -7,6 +7,7 @@ import pandas as pd
 import plotly.express as px
 from utils import check_syntax as cs
 from utils import automa as at
+import json
 from utils.env import ALGORITHMS, IMPACTS_NAMES, PATH_AUTOMATON_IMAGE_SVG, PATH_IMAGE_BPMN_LARK_SVG, RESOLUTION, TASK_SEQ, IMPACTS, H, DURATIONS, PROBABILITIES, NAMES, DELAYS
 from utils.print_sese_diagram import print_sese_diagram
 #from solver.tree_lib import print_sese_custom_tree
@@ -17,7 +18,10 @@ bpmn_lark = {
     TASK_SEQ: 'SimpleTask1, Task1 || Task, Task3 ^ [C1] Task9',
     H: 0, # indicates the index of splitting to separate non-cumulative and cumulative impacts impact_vector[0:H] for cumulative impacts and impact_vector[H+1:] otherwise
     IMPACTS: {},
+    DURATIONS: {},
 }
+bound_d = {}
+strategy_d = {}
 min_duration = 0
 max_duration = 100
 value_interval = [min_duration, max_duration]
@@ -116,7 +120,25 @@ def layout():
         #     html.H1("here the explainer:"),            
         # ]),
         # html.Br(),
-        # html.Br(),   
+        # html.Br(),  
+        ########################
+        ### DOWNLOAD EXAMPLE ###
+        ########################
+        html.Div(id="download-example", children=[
+            html.H1("Download the example:"), 
+            dbc.Checklist(
+                options=[
+                    {"label": "BPMN + CPI", "value": 1},
+                    {"label": "Bound", "value": 2},
+                    {"label": "Strategy", "value": 3},
+                ],
+                value=[1, 2],
+                id="switches-input",
+                switch=True,
+            ),
+            html.Button("Download", id="btn-download"),
+            dcc.Download(id="download")
+        ]),
     ]
 )
 
@@ -149,6 +171,7 @@ def find_strategy(n_clicks, algo:str, bound:dict, impacts):
             ]
     if cs.checkCorrectSyntax(bpmn_lark) and cs.check_algo_is_usable(bpmn_lark[TASK_SEQ],algo):  
         print(bpmn_lark)   
+        bound_d = bound
         finded_strategies = at.calc_strat(bpmn_lark, bound, algo)
         if finded_strategies == {}: 
             return [None,
@@ -602,3 +625,29 @@ def add_impacts(tasks_, impacts):
         id = 'impacts-tab',
         style = {'width': '100%', 'textalign': 'center'}
     )
+
+
+#######################
+
+## DOWNLOAD 
+
+#######################
+
+@callback(
+    Output("download", "data"),
+    Input("btn-download", "n_clicks"),
+    State('switches-input', 'value'),
+    prevent_initial_call=True,
+)
+def func(n_clicks, switches):
+    print(f' in dwonlaoad {switches}')
+    content = {}
+    for el in switches: 
+        if el == 1:
+            content['bpmn'] = bpmn_lark
+        elif el == 2:
+            content['bound'] = bound_d
+        elif el == 3:
+            content['strategy'] = strategy_d
+    content = json.dumps(content)
+    return dict(content=content, filename="bpmn_cpi_strategy.json")
