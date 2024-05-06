@@ -147,11 +147,8 @@ def find_strategy(n_clicks, algo:str, bound:dict, impacts):
                     is_open=True,
                 ),
             ]
-    if cs.checkCorrectSyntax(bpmn_lark) and cs.check_algo_is_usable(bpmn_lark[TASK_SEQ],algo):        
-        impacts = cs.string_to_dict(impacts)
-        all_keys = cs.order_keys(impacts)
-        bpmn_lark[IMPACTS_NAMES] = all_keys
-        #print(bpmn_lark)
+    if cs.checkCorrectSyntax(bpmn_lark) and cs.check_algo_is_usable(bpmn_lark[TASK_SEQ],algo):  
+        print(bpmn_lark)   
         finded_strategies = at.calc_strat(bpmn_lark, bound, algo)
         if finded_strategies == {}: 
             return [None,
@@ -232,8 +229,11 @@ def create_sese_diagram(n_clicks, task , impacts, durations = {}, probabilities 
                 None
             ]
     try:
-        bpmn_lark[IMPACTS_NAMES] = impacts.split(sep=',')
-        bpmn_lark[IMPACTS] = cs.extract_impacts_dict(bpmn_lark[IMPACTS_NAMES], impacts_table)         
+        bpmn_lark[IMPACTS_NAMES] = impacts.replace(" ",'').split(sep=',')
+        bpmn_lark[IMPACTS] = cs.extract_impacts_dict(bpmn_lark[IMPACTS_NAMES], impacts_table) 
+        print(bpmn_lark[IMPACTS])
+        bpmn_lark[IMPACTS] = cs.impacts_dict_to_list(bpmn_lark[IMPACTS])     
+        print(bpmn_lark[IMPACTS], ' AS LISTR')   
     except Exception as e:
         print(f'Error at 1st step while parsing the BPMN impacts: {e}')
         return [  # dbc.Alert(f'Error while parsing the bpmn: {e}', color="danger")]
@@ -589,7 +589,7 @@ def add_impacts(tasks_, impacts):
             task_dict[impact] = dcc.Input(
                 id=f'range-slider-{i}-{j}',
                 type='number',
-                value=0,
+                value=1,
                 min=0,
             )
 

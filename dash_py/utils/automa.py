@@ -1,5 +1,5 @@
 from datetime import datetime
-from utils.env import ALGORITHMS, DURATIONS #, DELAYS, NAMES, PROBABILITIES
+from utils.env import ALGORITHMS, DURATIONS, IMPACTS #, DELAYS, NAMES, PROBABILITIES
 from solver.test_aalpy import automata_search_strategy
 from utils import check_syntax as cs
 " Here the automata is called to calculate the strategies for the process "
@@ -38,9 +38,9 @@ def calc_strat(bpmn:dict, bound:dict, algo:str) -> dict:
 def calc_strategy_paco(bpmn:dict, bound:list[int]) -> dict:
     strategies = {}
     try:
-        print('testing PACO...')
+        print(f'{datetime.now()} testing PACO...')
         # replace the duration list with the max duration
-        bpmn[DURATIONS] = cs.set_max_duration(bpmn[DURATIONS])    
+        bpmn[DURATIONS] = cs.set_max_duration(bpmn[DURATIONS])         
         print(f'{datetime.now()} bpmn + cpi {bpmn}')
         strat = automata_search_strategy(bpmn, bound)
         if strat.startswith("A strategy") :

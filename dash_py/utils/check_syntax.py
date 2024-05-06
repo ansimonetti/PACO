@@ -413,3 +413,6 @@ def create_probabilities_names(list_choises):
     for c in list_choises:
         dict_prob[c] = c
     return dict_prob
+
+def impacts_dict_to_list(impacts: dict):
+    return {key: list(inner_dict.values()) for key, inner_dict in impacts.items()}
