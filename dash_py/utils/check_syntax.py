@@ -199,7 +199,7 @@ def impacts_from_dict_to_list(dictionary:dict):
 # This function takes a string representation of a dictionary as input,
 # converts it to a dictionary, and maps each key to a list of its integer values.
 # If a key has non-integer values, it maps the key to an empty list.
-def extract_impacts_dict(impacts, tasks):
+def extract_impacts_dict(impacts, table):
     """
     Convert a string representation of a dictionary to a dictionary and map each key to a list of its integer values.
     If a key has non-integer values, it maps the key to an empty list.
@@ -210,22 +210,25 @@ def extract_impacts_dict(impacts, tasks):
     Returns:
     dict: A dictionary where each key is mapped to a list of its integer values or an empty list if it has non-integer values.
     """
-    # Convert the string to a dictionary
-    impacts = string_to_dict(impacts)
-    # add the missing keys with value 0
-    impacts = normalize_dict_impacts(impacts)
-    # Initialize an empty dictionary
     impacts_dict = {}
-    # Iterate over the items of the dictionary
-    for key, value in impacts.items():
-        # Map the key to a list of its integer values or an empty list
-        impacts_dict[key] = impacts_from_dict_to_list(value) 
-    tasks = extract_tasks(tasks)
-    list_empty = [0]*len(list(impacts_dict.values())[0])
-    for t in tasks:
-        if t not in impacts_dict.keys():
-            impacts_dict[t] = list_empty
-    # Return the new dictionary
+    # Iterate over the rows in the 'Tbody' section of the table
+    for row in table['props']['children'][1]['props']['children']:
+        # Extract the task name
+        task = row['props']['children'][0]['props']['children']
+        # Initialize an empty dictionary to store the impacts
+        impacts_tmp = {}
+
+        # Iterate over the columns of the row, skipping the first one
+        for i , col in enumerate(row['props']['children'][1:]):
+            # Extract the impact name and value
+            impact_name = impacts[i]
+            impact_value = int(col['props']['children']['props']['value'])
+
+            # Add the impact to the impacts dictionary
+            impacts_tmp[impact_name] = impact_value
+
+        # Add the task and its impacts to the results dictionary
+        impacts_dict[task] = impacts_tmp
     return impacts_dict
         
 def normalize_dict_impacts(input_dict:dict):

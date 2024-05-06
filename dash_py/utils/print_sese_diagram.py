@@ -100,7 +100,7 @@ def dot_task(id, name, h=0, imp=None, dur=None, imp_names = []):
     #print(f"impacts in dot task : {imp}")
     if imp is not None: # modifica per aggiungere impatti e durate in modo leggibile 
         if h == 0:
-            imp = " ".join(f"{key[0]}: {round(value,2)}" for key, value in zip(imp_names, imp))
+            imp =  " ".join(f"{key[0]}: {value}" for key, value in zip(imp_names, imp))
             label += f", impacts: {imp}"
             label += f", dur: {str(dur)}"  
         else: 

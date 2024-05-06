@@ -211,7 +211,7 @@ def find_strategy(n_clicks, algo:str, bound:dict, impacts):
     State('durations-task-table', 'children'),
     State('probabilities', 'children'),
     State('delays', 'children'),
-    State('imacts-table', 'children'),
+    State('impacts-table', 'children'),
     prevent_initial_call=True,
 )
 def create_sese_diagram(n_clicks, task , impacts, durations = {}, probabilities = {}, delays = {}, impacts_table = {}):
@@ -232,8 +232,8 @@ def create_sese_diagram(n_clicks, task , impacts, durations = {}, probabilities 
                 None
             ]
     try:
-        bpmn_lark[IMPACTS] = cs.extract_impacts_dict(impacts, task)
         bpmn_lark[IMPACTS_NAMES] = impacts.split(sep=',')
+        bpmn_lark[IMPACTS] = cs.extract_impacts_dict(bpmn_lark[IMPACTS_NAMES], impacts_table)         
     except Exception as e:
         print(f'Error at 1st step while parsing the BPMN impacts: {e}')
         return [  # dbc.Alert(f'Error while parsing the bpmn: {e}', color="danger")]
@@ -449,7 +449,7 @@ def add_probabilities(tasks_):
     """
     This function takes the bpmn, extract the choises and assign them with a probability.
     Then, it creates a list of unique impacts and generates a table where each row contains an impact and an input field.
-    The function is decorated with a callback that updates the 'choose-bound-dict' component
+    The function is decorated with a callback that updates the probailities component
     whenever the 'create-diagram-button' is clicked and the 'input-impacts' value changes.
 
     Parameters:
@@ -485,7 +485,7 @@ def add_probabilities(tasks_):
         })
 
     # Convert the task data list into a DataFrame and then into a Table component
-    # The Table component is returned and will be displayed in the 'choose-bound-dict' component
+    # The Table component is returned and will be displayed in the probabilities component
     return dbc.Table.from_dataframe(
         pd.DataFrame(task_data),
         id = 'choose-prob',
@@ -507,7 +507,7 @@ def add_delays(tasks_):
     """
     This function takes the bpmn, extract the choises and assign them with a delay.
     Then, it creates a list of unique impacts and generates a table where each row contains an impact and an input field.
-    The function is decorated with a callback that updates the 'choose-bound-dict' component
+    The function is decorated with a callback that updates the 'delays' component
     whenever the 'create-diagram-button' is clicked and the 'input-impacts' value changes.
 
     Parameters:
@@ -542,7 +542,7 @@ def add_delays(tasks_):
         })
 
     # Convert the task data list into a DataFrame and then into a Table component
-    # The Table component is returned and will be displayed in the 'choose-bound-dict' component
+    # The Table component is returned and will be displayed in the 'delays' component
     return dbc.Table.from_dataframe(
         pd.DataFrame(task_data),
         id = 'choose-prob',
@@ -596,9 +596,9 @@ def add_impacts(tasks_, impacts):
         # Append the task data dictionary to the task data list
         task_data.append(task_dict)
     # Convert the task data list into a DataFrame and then into a Table component
-    # The Table component is returned and will be displayed in the 'choose-bound-dict' component
+    # The Table component is returned and will be displayed in the 'impacts-table' component
     return dbc.Table.from_dataframe(
         pd.DataFrame(task_data),
-        id = 'choose-prob',
+        id = 'impacts-tab',
         style = {'width': '100%', 'textalign': 'center'}
     )
