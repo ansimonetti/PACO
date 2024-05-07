@@ -163,6 +163,7 @@ def automata_search_strategy(bpmn: dict, bound: list[int]) -> str:
     try:
         # Parse the task sequence from the BPMN diagram
         tree = SESE_PARSER.parse(bpmn[TASK_SEQ])
+        print(tree.pretty())
         print(f'{datetime.now()} bound {bound}')
         # Convert the parsed tree into a custom tree and get the last ID
         custom_tree, last_id = Lark_to_CTree(tree, bpmn[PROBABILITIES],

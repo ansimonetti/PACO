@@ -153,10 +153,9 @@ def layout():
     Input('find-strategy-button', 'n_clicks'),
     State('choose-strategy', 'value'),
     State('choose-bound-dict', 'children'),
-    State('input-impacts', 'value'),
     prevent_initial_call=True
 )
-def find_strategy(n_clicks, algo:str, bound:dict, impacts):
+def find_strategy(n_clicks, algo:str, bound:dict):
     """This function is when the user search a str."""
     if bound == {} or bound == None:
         return [html.P(f'Insert a bound dictionary to find the strategy.'),
