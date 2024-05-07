@@ -25,6 +25,8 @@ To use PACO, you can  follow these steps:
     ```
 4. Open Chrome (or any othe  browser supporting HTML5) and go to `http://127.0.0.1:8050`.
 
+NB! This application is currently under development. There may be some issues and bugs.
+
 ## Authors
 
 * **prof. Sala Pietro**
