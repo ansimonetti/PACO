@@ -29,10 +29,10 @@ NB! This application is currently under development. There may be some issues an
 
 ## Authors
 
-* **prof. Sala Pietro**
-* **Chini Emanuele**
-* **Simonetti Andrea**
-* **Zare Omid**
+* **Emanuele Chini** 
+* **Pietro Sala**
+* **Andrea Simonetti**
+* **Omid Zare**
 
 ## Contributing
 
