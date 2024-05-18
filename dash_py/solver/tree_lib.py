@@ -81,9 +81,13 @@ def from_lark_parsed_to_custom_tree(lark_tree, probabilities, impacts, durations
         childrens = [left_children, right_children]
         tmp_node.set_childrens(childrens)
         return CTree(tmp_node), last_id
-    elif (lark_tree.data in {'loop', 'loop_probability'}):
-        #TO DO
-        return None
+    elif (lark_tree.data == 'loop_probability'):
+        tmp_node = CNode(parent, index_in_parent, lark_tree.data, id = id, probability=probabilities[lark_tree.children[0].value] if lark_tree.children[0].value in probabilities else 0.5)
+        # loops have only one child, the right one is set None
+        left_children, last_id = from_lark_parsed_to_custom_tree(lark_tree.children[1], probabilities, impacts, durations, names, delays, id = id + 1, h=h, loop_thresholds=loop_thresholds, parent=tmp_node, index_in_parent=0)
+        childrens = [left_children, None]
+        tmp_node.set_childrens(childrens)
+        return CTree(tmp_node), last_id
     
 def print_sese_custom_tree(tree, h = 0, probabilities={}, impacts={}, loop_thresholds = {}, outfile="assets/out.png"):
     tree = dot_tree(tree, h, probabilities, impacts, loop_thresholds)
@@ -141,7 +145,7 @@ def dot_tree(t: CTree, h=0, prob={}, imp={}, loops={}, token_is_task=True):
             code += dot_exclusive_gateway(r.id, r.name + ' id:' + str(r.id) + ' dly:' + dly_str)
         elif label == 'natural':
             code += dot_exclusive_gateway(r.id, label + ' id:' + str(r.id))
-        elif label in {'loop', 'loop_probability'}: 
+        elif label == 'loop_probability': 
             code += dot_loop_gateway(r.id, label + ' id:' + str(r.id))
         elif label == 'parallel':
             code += dot_parallel_gateway(r.id, label + ' id:' + str(r.id))        
@@ -152,8 +156,8 @@ def dot_tree(t: CTree, h=0, prob={}, imp={}, loops={}, token_is_task=True):
             proba = r.probability
             edge_labels = [f'{proba}', f'{round((1 - proba), 2)}']
         if label == "loop_probability":
-            #TO DO
-            edge_labels = ['', '']   
+            proba = r.probability
+            edge_labels = [f'{proba}', f'{round((1 - proba), 2)}']  
         for ei,i in enumerate(child_ids):
             edge_label = edge_labels[ei]
             code += f'\n node_{r.id} -> node_{i} [label="{edge_label}"];'

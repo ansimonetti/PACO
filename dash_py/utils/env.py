@@ -47,7 +47,7 @@ ALGORITHMS = {  # strategies with labels
 
 ALL_SYNTAX = ['^', '/', '||', '<', '>', '[', ']', ',', '', '(', ')'] # all syntax characters available
 ALGORITHMS_MISSING_SYNTAX = { 
-    's1': ['<', '>'], # no LOOPs in PACO
+    's1': [],#['<', '>'], # no LOOPs in PACO
     's2': [],
     's3': []
 }

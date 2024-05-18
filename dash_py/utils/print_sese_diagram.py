@@ -69,7 +69,8 @@ def dot_sese_diagram(t, id = 0, h = 0, prob={}, imp={}, loops = {}, dur = {}, im
                            f'{round(1 - prob[prob_key], 2) if prob_key  in prob else 0.5 }']
         if label == "loop_probability":
             prob_key = t.children[0].value
-            edge_labels = ['',f'{loops[prob_key] if prob_key  in loops else 0.5 }']
+            proba = loops[prob_key] if prob_key  in loops else 0.5
+            edge_labels = ['',f'{proba}']
         if label != "sequential":
             for ei,i in enumerate(child_ids):
                 edge_label = edge_labels[ei]
