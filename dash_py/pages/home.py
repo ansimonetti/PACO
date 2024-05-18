@@ -486,7 +486,7 @@ def add_probabilities(tasks_):
 
     # Extract the tasks from the input
     tasks_list = cs.extract_choises_nat(tasks_)
-
+    tasks_list += cs.extract_loops(tasks_)
     # Initialize an empty list to store the task data
     task_data = []
 
@@ -495,7 +495,7 @@ def add_probabilities(tasks_):
         # For each impact, append a dictionary to the task data list
         # The dictionary contains the impact and an input field for the impact
         task_data.append({
-            'Impacts': task,
+            'Natural & Loops': task,
             'Set Probabilities': dcc.Input(
                 id=f'range-slider-{i}',
                 type='number',
@@ -553,7 +553,7 @@ def add_delays(tasks_):
         # For each impact, append a dictionary to the task data list
         # The dictionary contains the impact and an input field for the impact
         task_data.append({
-            'Impacts': task,
+            'Choises': task,
             'Set Delays': dcc.Input(
                 id=f'range-slider-{i}',
                 type='number',
@@ -611,7 +611,7 @@ def add_impacts(tasks_, impacts):
             task_dict[impact] = dcc.Input(
                 id=f'range-slider-{i}-{j}',
                 type='number',
-                value=1,
+                value=0,
                 min=0,
             )
 
