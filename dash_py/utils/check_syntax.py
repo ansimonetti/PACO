@@ -352,10 +352,10 @@ def extract_loops(input_string):
     list: A list of substrings found between square brackets.
     """
     # Use a regular expression to find all substrings between square brackets
-    loops = re.findall(r'<(.*?)>', input_string)
+    loops = re.findall(r'\<\s*\[(.*?)\]', input_string) #re.findall(r'<(.*?)>', input_string)
 
     # Filter out empty strings
-    loops = [c for c in loops if c]
+    loops = [f'{c}' for c in loops if c]
 
     return loops
 def extract_choises_user(input_string):

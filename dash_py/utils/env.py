@@ -68,6 +68,7 @@ DURATIONS = 'durations'
 DELAYS = 'delays'
 H = 'h'
 IMPACTS_NAMES ='impacts_names'
+LOOP = 'loop_round'
 ### Automaton parameters
 AUTOMATON_TYPE = 'mealy'
 ### SYNTAX
