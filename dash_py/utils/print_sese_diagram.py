@@ -22,9 +22,10 @@ def print_sese_diagram(expression, h = 0, probabilities={}, impacts={}, loop_thr
     return  Image.open(outfile)   
 
 def dot_sese_diagram(t, id = 0, h = 0, prob={}, imp={}, loops = {}, dur = {}, imp_names = []):
+    exit_label = ''
     if type(t) == Token:
         label = t.value
-        return dot_task(id, label, h, imp[label] if label in imp else None, dur[label] if label in dur else None, imp_names), id, id
+        return dot_task(id, label, h, imp[label] if label in imp else None, dur[label] if label in dur else None, imp_names), id, id, exit_label
     if type(t) == Tree:
         label = t.data
         if label == 'task':
@@ -33,9 +34,11 @@ def dot_sese_diagram(t, id = 0, h = 0, prob={}, imp={}, loops = {}, dur = {}, im
         id_enter = id
         last_id = id_enter + 1
         child_ids = []
+        exit_labels = []
         for i, c in enumerate(t.children):
             if (label != 'natural' or i != 1) and (label != 'choice' or i != 1) and (label != 'loop_probability' or i !=0 ):
-                dot_code, enid, exid = dot_sese_diagram(c, last_id, h, prob, imp, loops, dur, imp_names)
+                dot_code, enid, exid, tmp_exit_label = dot_sese_diagram(c, last_id, h, prob, imp, loops, dur, imp_names)
+                exit_labels.append(tmp_exit_label)
                 code += f'\n {dot_code}'
                 child_ids.append((enid, exid))
                 last_id = exid + 1
@@ -62,15 +65,16 @@ def dot_sese_diagram(t, id = 0, h = 0, prob={}, imp={}, loops = {}, dur = {}, im
         else: 
             id_enter = child_ids[0][0]
             id_exit = child_ids[-1][1]    
-        edge_labels = ['','',''] 
+        edge_labels = ['','','']
         if label == "natural":
             prob_key = t.children[1].value
             edge_labels = [f'{prob[prob_key] if prob_key  in prob else 0.5 }',
                            f'{round(1 - prob[prob_key], 2) if prob_key  in prob else 0.5 }']
         if label == "loop_probability":
             prob_key = t.children[0].value
-            proba = loops[prob_key] if prob_key  in loops else 0.5
+            proba = loops[prob_key] if prob_key in loops else 0.5
             edge_labels = ['',f'{proba}']
+            exit_label = f'{1-proba}'
         if label != "sequential":
             for ei,i in enumerate(child_ids):
                 edge_label = edge_labels[ei]
@@ -82,14 +86,16 @@ def dot_sese_diagram(t, id = 0, h = 0, prob={}, imp={}, loops = {}, dur = {}, im
             for ei,i in enumerate(child_ids):
                 edge_label = edge_labels[ei]
                 if ei != 0:
-                    code += f'\n node_{child_ids[ei - 1][1]} -> node_{i[0]} [label="{edge_label}"];'              
-    return code, id_enter, id_exit
+                    #code += f'\n node_{child_ids[ei - 1][1]} -> node_{i[0]} [label="{edge_label}"];'
+                    code += f'\n node_{child_ids[ei - 1][1]} -> node_{i[0]} [label="{exit_labels[0]}"];'
+                    exit_label = exit_labels[1]             
+    return code, id_enter, id_exit, exit_label
 
 def wrap_sese_diagram(tree, h = 0, probabilities={}, impacts={}, loop_thresholds = {}, durations={}, names={}, delays={}, impacts_names=[]):
-    code, id_enter, id_exit = dot_sese_diagram(tree, 0, h, probabilities, impacts, loop_thresholds, durations, imp_names = impacts_names)   
+    code, id_enter, id_exit, exit_label = dot_sese_diagram(tree, 0, h, probabilities, impacts, loop_thresholds, durations, imp_names = impacts_names)   
     code = '\n start[label="" style="filled" shape=circle fillcolor=palegreen1]' +   '\n end[label="" style="filled" shape=doublecircle fillcolor=orangered] \n' + code
     code += f'\n start -> node_{id_enter};'
-    code += f'\n node_{id_exit} -> end;'
+    code += f'\n node_{id_exit} -> end [label="{exit_label}"];'
     return code
 
 def get_tasks(t):
