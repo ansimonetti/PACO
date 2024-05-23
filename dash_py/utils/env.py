@@ -31,6 +31,7 @@ sese_diagram_grammar = r"""
 
 SESE_PARSER = Lark(sese_diagram_grammar, parser='lalr')
 MAX_DELAY = 1
+DEFAULT_UNFOLDING_NUMBER = 3
 
 FAILED = False
 ADMITTED = True
