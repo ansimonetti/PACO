@@ -8,7 +8,7 @@ import plotly.express as px
 from utils import check_syntax as cs
 from utils import automa as at
 import json
-from utils.env import ALGORITHMS, IMPACTS_NAMES, LOOP, PATH_AUTOMATON_IMAGE_SVG, PATH_IMAGE_BPMN_LARK_SVG, RESOLUTION, TASK_SEQ, IMPACTS, H, DURATIONS, PROBABILITIES, NAMES, DELAYS
+from utils.env import ALGORITHMS, BOUND, IMPACTS_NAMES, LOOP, PATH_AUTOMATON_IMAGE_SVG, PATH_IMAGE_BPMN_LARK_SVG, RESOLUTION, STRATEGY, TASK_SEQ, IMPACTS, H, DURATIONS, PROBABILITIES, NAMES, DELAYS
 from utils.print_sese_diagram import print_sese_diagram
 #from solver.tree_lib import print_sese_custom_tree
 
@@ -20,7 +20,6 @@ bpmn_lark = {
     IMPACTS: {},
     DURATIONS: {},
 }
-bound_d = {}
 strategy_d = {}
 min_duration = 0
 max_duration = 100
@@ -168,7 +167,7 @@ def find_strategy(n_clicks, algo:str, bound:dict):
             ]
     if cs.checkCorrectSyntax(bpmn_lark) and cs.check_algo_is_usable(bpmn_lark[TASK_SEQ],algo):  
         print(bpmn_lark)   
-        bound_d = bound
+        strategy_d[BOUND] = list(cs.extract_values_bound(bound))
         finded_strategies = at.calc_strat(bpmn_lark, bound, algo)
         if finded_strategies == {}: 
             return [None,
@@ -193,6 +192,7 @@ def find_strategy(n_clicks, algo:str, bound:dict):
                 ),
             ]
         else:
+            strategy_d[STRATEGY] = finded_strategies['strat1']
             return [
                 html.Div([
                     html.P(f"Strategies: {finded_strategies['strat1']}"),
@@ -223,9 +223,9 @@ def find_strategy(n_clicks, algo:str, bound:dict):
 @callback(
     [Output('logging', 'children'), Output('lark-frame', 'src')],
     Input('create-diagram-button', 'n_clicks'),
-    State('input-bpmn', 'value'),
-    State('input-impacts', 'value'),
-    State('impacts-table', 'children'),
+    State('input-bpmn', 'value'), # task seq
+    State('input-impacts', 'value'), # # impacts name list
+    State('task-duration', 'children'), # durations   durations-task-table
     State('probabilities', 'children'),
     State('delays', 'children'),
     State('impacts-table', 'children'),
@@ -233,6 +233,7 @@ def find_strategy(n_clicks, algo:str, bound:dict):
     prevent_initial_call=True,
 )
 def create_sese_diagram(n_clicks, task , impacts, durations = {}, probabilities = {}, delays = {}, impacts_table = {}, loops = {}):
+
     #check the syntax of the input if correct print the diagram otherwise an error message
     try:
         bpmn_lark[TASK_SEQ] = task
@@ -646,9 +647,9 @@ def func(n_clicks, switches):
         if el == 1:
             content['bpmn'] = bpmn_lark
         elif el == 2:
-            content['bound'] = bound_d
+            content['bound'] = strategy_d[BOUND]
         elif el == 3:
-            content['strategy'] = strategy_d
+            content['strategy'] = strategy_d[STRATEGY]
     content = json.dumps(content)
     return dict(content=content, filename="bpmn_cpi_strategy.json")
 
