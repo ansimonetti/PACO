@@ -2,6 +2,8 @@ import pydot
 from PIL import Image
 import numpy as np
 
+from utils import env
+
 class CTree:
     def __init__(self, root: 'CNode') -> None:
         self.root = root
@@ -55,39 +57,62 @@ class CNode:
         if self.id == other.id: return True
         else: return False
 
-def from_lark_parsed_to_custom_tree(lark_tree, probabilities, impacts, durations, names, delays, h = 0, loop_thresholds = None, parent = None, index_in_parent = None, id = 0) -> CTree:
+def recursiveUnfoldingOfLoop(children_list, id, parent, index_in_parent, loop_prob):
+    #recursive construction of the final unfolded tree
+    if len(children_list) == 1:
+        return children_list[0], id
+    else:
+        tmp = CNode(parent, index_in_parent, "natural", id=id+1, probability=loop_prob)
+        seq = CNode(tmp, 0, "sequential", id=id+2)
+        last_id = id+2
+        unfolded, last_id = recursiveUnfoldingOfLoop(children_list[2:], last_id, seq, 1, loop_prob)
+        children_list[0].root.parent = seq
+        children_list[0].root.index_in_parent = 0
+        children_list[1].root.parent = tmp
+        children_list[1].root.index_in_parent = 1
+        seq.set_childrens([children_list[0], unfolded])
+        tmp.set_childrens([CTree(seq), children_list[1]])
+        return CTree(tmp), last_id
+
+def from_lark_parsed_to_custom_tree(lark_tree, probabilities, impacts, durations, names, delays, loop_probabilities, loop_unfoldings, h = 0, loop_thresholds = None, parent = None, index_in_parent = None, id = 0):
     if lark_tree.data == 'task':
         impact = impacts[lark_tree.children[0].value] if lark_tree.children[0].value in impacts else []
         tmp_node = CNode(parent, index_in_parent, lark_tree.data, id = id, name = lark_tree.children[0].value, impact = impact[0:len(impact)-h], non_cumulative_impact = impact[len(impact)-h:], duration=durations[lark_tree.children[0].value])
         return CTree(tmp_node), id
     elif (lark_tree.data == 'choice'):
         tmp_node = CNode(parent, index_in_parent, lark_tree.data, id = id, name=names[lark_tree.children[1].value], short_name=lark_tree.children[1].value, max_delay=delays[lark_tree.children[1].value] if lark_tree.children[1].value in delays.keys() else np.Inf)
-        left_children, last_id = from_lark_parsed_to_custom_tree(lark_tree.children[0], probabilities, impacts, durations, names, delays, id = id + 1, h=h, loop_thresholds=loop_thresholds, parent=tmp_node, index_in_parent=0)
-        right_children, last_id = from_lark_parsed_to_custom_tree(lark_tree.children[2], probabilities, impacts, durations, names, delays, id = last_id + 1, h=h, loop_thresholds=loop_thresholds, parent=tmp_node, index_in_parent=1)
+        left_children, last_id = from_lark_parsed_to_custom_tree(lark_tree.children[0], probabilities, impacts, durations, names, delays, loop_probabilities, loop_unfoldings, id = id + 1, h=h, loop_thresholds=loop_thresholds, parent=tmp_node, index_in_parent=0)
+        right_children, last_id = from_lark_parsed_to_custom_tree(lark_tree.children[2], probabilities, impacts, durations, names, delays, loop_probabilities, loop_unfoldings, id = last_id + 1, h=h, loop_thresholds=loop_thresholds, parent=tmp_node, index_in_parent=1)
         childrens = [left_children, right_children]
         tmp_node.set_childrens(childrens)
         return CTree(tmp_node), last_id
     elif (lark_tree.data in {'sequential', 'parallel'}):
         tmp_node = CNode(parent, index_in_parent, lark_tree.data, id = id)
-        left_children, last_id = from_lark_parsed_to_custom_tree(lark_tree.children[0], probabilities, impacts, durations, names, delays, id = id + 1, h=h, loop_thresholds=loop_thresholds, parent=tmp_node, index_in_parent=0)
-        right_children, last_id = from_lark_parsed_to_custom_tree(lark_tree.children[1], probabilities, impacts, durations, names, delays, id = last_id + 1, h=h, loop_thresholds=loop_thresholds, parent=tmp_node, index_in_parent=1)
+        left_children, last_id = from_lark_parsed_to_custom_tree(lark_tree.children[0], probabilities, impacts, durations, names, delays, loop_probabilities, loop_unfoldings, id = id + 1, h=h, loop_thresholds=loop_thresholds, parent=tmp_node, index_in_parent=0)
+        right_children, last_id = from_lark_parsed_to_custom_tree(lark_tree.children[1], probabilities, impacts, durations, names, delays, loop_probabilities, loop_unfoldings, id = last_id + 1, h=h, loop_thresholds=loop_thresholds, parent=tmp_node, index_in_parent=1)
         childrens = [left_children, right_children]
         tmp_node.set_childrens(childrens)
         return CTree(tmp_node), last_id
     elif (lark_tree.data == 'natural'):
         tmp_node = CNode(parent, index_in_parent, lark_tree.data, id = id, probability=probabilities[lark_tree.children[1].value] if lark_tree.children[1].value in probabilities else 0.5)
-        left_children, last_id = from_lark_parsed_to_custom_tree(lark_tree.children[0], probabilities, impacts, durations, names, delays, id = id + 1, h=h, loop_thresholds=loop_thresholds, parent=tmp_node, index_in_parent=0)
-        right_children, last_id = from_lark_parsed_to_custom_tree(lark_tree.children[2], probabilities, impacts, durations, names, delays, id = last_id + 1, h=h, loop_thresholds=loop_thresholds, parent=tmp_node, index_in_parent=1)
+        left_children, last_id = from_lark_parsed_to_custom_tree(lark_tree.children[0], probabilities, impacts, durations, names, delays, loop_probabilities, loop_unfoldings, id = id + 1, h=h, loop_thresholds=loop_thresholds, parent=tmp_node, index_in_parent=0)
+        right_children, last_id = from_lark_parsed_to_custom_tree(lark_tree.children[2], probabilities, impacts, durations, names, delays, loop_probabilities, loop_unfoldings, id = last_id + 1, h=h, loop_thresholds=loop_thresholds, parent=tmp_node, index_in_parent=1)
         childrens = [left_children, right_children]
         tmp_node.set_childrens(childrens)
         return CTree(tmp_node), last_id
     elif (lark_tree.data == 'loop_probability'):
-        tmp_node = CNode(parent, index_in_parent, lark_tree.data, id = id, probability=probabilities[lark_tree.children[0].value] if lark_tree.children[0].value in probabilities else 0.5)
-        # loops have only one child, the right one is set None
-        left_children, last_id = from_lark_parsed_to_custom_tree(lark_tree.children[1], probabilities, impacts, durations, names, delays, id = id + 1, h=h, loop_thresholds=loop_thresholds, parent=tmp_node, index_in_parent=0)
-        childrens = [left_children, None]
-        tmp_node.set_childrens(childrens)
-        return CTree(tmp_node), last_id
+        loop_prob = loop_probabilities[lark_tree.children[0].value] if lark_tree.children[0].value in loop_probabilities else 0.5
+        number_of_unfoldings = loop_unfoldings[lark_tree.children[0].value] if lark_tree.children[0].value in loop_unfoldings else env.DEFAULT_UNFOLDING_NUMBER
+        num_of_regions_to_replicate = ((number_of_unfoldings - 1)*2) + 1
+        # loops have only one child
+        id -= 1
+        children_list = []
+        for dup in range(num_of_regions_to_replicate):
+            children, last_id = from_lark_parsed_to_custom_tree(lark_tree.children[1], probabilities, impacts, durations, names, delays, loop_probabilities, loop_unfoldings, id = id + 1, h=h, loop_thresholds=loop_thresholds, parent=None, index_in_parent=0) #parent and index will be modified
+            children_list.append(children.copy())
+            id = last_id
+        unfolded_tree, last_id = recursiveUnfoldingOfLoop(children_list, last_id, parent, index_in_parent, loop_prob)
+        return unfolded_tree, last_id
     
 def print_sese_custom_tree(tree, h = 0, probabilities={}, impacts={}, loop_thresholds = {}, outfile="assets/out.png"):
     tree = dot_tree(tree, h, probabilities, impacts, loop_thresholds)
