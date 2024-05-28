@@ -8,7 +8,7 @@ import plotly.express as px
 from utils import check_syntax as cs
 from utils import automa as at
 import json
-from utils.env import ALGORITHMS, BOUND, IMPACTS_NAMES, LOOP, PATH_AUTOMATON_IMAGE_SVG, PATH_IMAGE_BPMN_LARK_SVG, RESOLUTION, STRATEGY, TASK_SEQ, IMPACTS, H, DURATIONS, PROBABILITIES, NAMES, DELAYS
+from utils.env import ALGORITHMS, BOUND, IMPACTS_NAMES, LOOP, LOOPS_PROB, PATH_AUTOMATON_IMAGE_SVG, PATH_IMAGE_BPMN_LARK_SVG, RESOLUTION, STRATEGY, TASK_SEQ, IMPACTS, H, DURATIONS, PROBABILITIES, NAMES, DELAYS
 from utils.print_sese_diagram import print_sese_diagram
 #from solver.tree_lib import print_sese_custom_tree
 
@@ -289,6 +289,7 @@ def create_sese_diagram(n_clicks, task , impacts, durations = {}, probabilities 
         loops_chioses = cs.extract_loops(task) 
         choises_nat = cs.extract_choises_nat(task) + loops_chioses
         bpmn_lark[PROBABILITIES] = cs.create_probabilities_dict(choises_nat, probabilities)
+        bpmn_lark[PROBABILITIES], bpmn_lark[LOOPS_PROB] = divide_dict(bpmn_lark[PROBABILITIES, loops_chioses])
         bpmn_lark[NAMES] = cs.create_probabilities_names(list_choises)
         bpmn_lark[DELAYS] = cs.create_probabilities_dict(cs.extract_choises_user(task), delays)
         bpmn_lark[LOOP] = cs.create_probabilities_dict(loops_chioses,loops)
@@ -706,3 +707,17 @@ def add_loops_number(tasks_):
         id = 'choose-loop-round',
         style = {'width': '100%', 'textalign': 'center'}
     )
+
+
+def divide_dict(dictionary, keys):
+    # Initialize an empty dictionary for the loop
+    loop = {}
+
+    # Iterate over the keys
+    for key in keys:
+        # If the key is in the dictionary, remove it and add it to the loop dictionary
+        if key in dictionary:
+            loop[key] = dictionary.pop(key)
+
+    # Return the modified original dictionary and the loop dictionary
+    return dictionary, loop

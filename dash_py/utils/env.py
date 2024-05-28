@@ -73,6 +73,7 @@ LOOP = 'loop_round'
 AUTOMATON_TYPE = 'mealy'
 ### SYNTAX
 LOOPS = 'loops'
+LOOPS_PROB = 'loops_prob'
 ADVERSARIES = 'adversaries' # not yet implemented, neither in the grammar
 # BPMN RESOLUTION #######################
 RESOLUTION = 300
