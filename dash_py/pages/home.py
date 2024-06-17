@@ -289,7 +289,7 @@ def create_sese_diagram(n_clicks, task , impacts, durations = {}, probabilities 
         loops_chioses = cs.extract_loops(task) 
         choises_nat = cs.extract_choises_nat(task) + loops_chioses
         bpmn_lark[PROBABILITIES] = cs.create_probabilities_dict(choises_nat, probabilities)
-        bpmn_lark[PROBABILITIES], bpmn_lark[LOOPS_PROB] = divide_dict(bpmn_lark[PROBABILITIES, loops_chioses])
+        bpmn_lark[PROBABILITIES], bpmn_lark[LOOPS_PROB] = divide_dict(bpmn_lark[PROBABILITIES], loops_chioses)
         bpmn_lark[NAMES] = cs.create_probabilities_names(list_choises)
         bpmn_lark[DELAYS] = cs.create_probabilities_dict(cs.extract_choises_user(task), delays)
         bpmn_lark[LOOP] = cs.create_probabilities_dict(loops_chioses,loops)
@@ -691,7 +691,7 @@ def add_loops_number(tasks_):
         # The dictionary contains the impact and an input field for the impact
         task_data.append({
             'Loops': task,
-            'Set Max Round': dcc.Input(
+            'Allowed iterations': dcc.Input(
                 id=f'range-slider-{i}',
                 type='number',
                 value=1,
