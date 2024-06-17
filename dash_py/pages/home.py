@@ -43,7 +43,7 @@ def layout():
     return html.Div([
         html.Div(id='logging'),
         html.Div(id='logging-strategy'),
-        dbc.Alert("Disclaimer: This is not a definitive app! There may be some bugs or placeholders. Please be careful! Moreover, the BPMN dimension supported varies among machines. So for big BPMN choose a powerful PC. ", color="warning"),
+        # dbc.Alert("Disclaimer: This is not a definitive app! There may be some bugs or placeholders. Please be careful! Moreover, the BPMN dimension supported varies among machines. So for big BPMN choose a powerful PC. ", color="warning"),
         ################################
         ### DEFINING THE BPMN + DCPI ###
         ################################
@@ -58,10 +58,10 @@ def layout():
         dcc.Textarea(value='',  id = 'input-impacts', persistence=True, style={'width': '100%'}),
         html.Div(id='impacts-table'),
         html.Br(),
-        html.P('Insert the probabilities for each natural choise. The values have to be between 0 and 1.'),
+        html.P('Insert the probabilities for each natural choice. The values have to be between 0 and 1.'),
         html.Div(id= 'probabilities'),
         html.Br(),
-        html.P('Insert the delays for each natural choise. The values have to be between 0 and 100.'),
+        html.P('Insert the delays for each natural choice. The values have to be between 0 and 100.'),
         html.Div(id= 'delays'),
         html.Br(),    
         html.P('Insert the number of maximum loops round. The value have to be between 1 and 100.'),    
@@ -412,6 +412,7 @@ def add_task(tasks_):
     Output('choose-bound-dict', 'children'),
     Input('create-diagram-button', 'n_clicks'),
     State('input-impacts', 'value'),
+    allow_duplicate=True
 )
 def add_task(n_clicks, impacts):
     """
@@ -469,6 +470,7 @@ def add_task(n_clicks, impacts):
 @callback(
     Output('probabilities', 'children'),
     Input('input-bpmn', 'value'),
+    allow_duplicate=True
 )
 def add_probabilities(tasks_):
     """
@@ -527,6 +529,7 @@ def add_probabilities(tasks_):
 @callback(
     Output('delays', 'children'),
     Input('input-bpmn', 'value'),
+    allow_duplicate=True
 )
 def add_delays(tasks_):
     """
@@ -585,6 +588,7 @@ def add_delays(tasks_):
     Output('impacts-table', 'children'),
     Input('input-bpmn', 'value'),
     Input('input-impacts', 'value'),
+    allow_duplicate=True
 )
 def add_impacts(tasks_, impacts):
     """
@@ -665,6 +669,7 @@ def func(n_clicks, switches):
 @callback(
     Output('loops', 'children'),
     Input('input-bpmn', 'value'),
+    allow_duplicate=True
 )
 def add_loops_number(tasks_):
     """

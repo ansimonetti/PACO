@@ -90,7 +90,7 @@ layout = html.Div([
         html.Br(),
         dcc.Markdown('''
 
-            ## Choises:
+            ## Choices:
             for each type of gateway, the choices are defined based on who or what takes the decision which are (only for XOR):
 
             - `^` : Exclusive gateway
@@ -108,7 +108,7 @@ layout = html.Div([
                 - Adversary: the decision is taken by an adversary.
                      - Example: `< []Task1 >` --> the adversary will choose for this gateway.
             
-            ### Examples natural choise    
+            ### Examples natural choice    
                           
         '''),
         html.Img(src=dash.get_asset_url('examples/natural_xor.png')),
