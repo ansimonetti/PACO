@@ -12,6 +12,11 @@ from utils.env import ALGORITHMS, BOUND, IMPACTS_NAMES, LOOP, LOOPS_PROB, PATH_A
 from utils.print_sese_diagram import print_sese_diagram
 #from solver.tree_lib import print_sese_custom_tree
 
+
+
+##### AGGIUNGERE TABS dove una si mette tutto e l'altra si usa come visualizzatore
+
+
 dash.register_page(__name__, path='/')
 # SimpleTask1, Task1 || Task, Task3 ^ Task9
 bpmn_lark = {
