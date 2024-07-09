@@ -69,7 +69,7 @@ def layout():
                 html.Div([
                     html.Div(id='task-duration'),
                     html.P('Insert the impacts list of the tasks in the following format: cost, hours. IF for some task the impacts are not defined they will be put 0 by default.'),
-                    dcc.Textarea(value='',  id = 'input-impacts', persistence=True, style={'width': '100%'}),
+                    dcc.Textarea(value='cost  ',  id = 'input-impacts', persistence=True, style={'width': '100%'}),
                     html.Div(id='impacts-table'),
                     html.Br(),
                     html.P('Insert the probabilities for each natural choice. The values have to be between 0 and 1.'),

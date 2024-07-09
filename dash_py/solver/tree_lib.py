@@ -80,7 +80,7 @@ def from_lark_parsed_to_custom_tree(lark_tree, probabilities, impacts, durations
         tmp_node = CNode(parent, index_in_parent, lark_tree.data, id = id, name = lark_tree.children[0].value, impact = impact[0:len(impact)-h], non_cumulative_impact = impact[len(impact)-h:], duration=durations[lark_tree.children[0].value])
         return CTree(tmp_node), id
     elif (lark_tree.data == 'choice'):
-        tmp_node = CNode(parent, index_in_parent, lark_tree.data, id = id, name=names[lark_tree.children[1].value], short_name=lark_tree.children[1].value, max_delay=delays[lark_tree.children[1].value] if lark_tree.children[1].value in delays.keys() else np.Inf)
+        tmp_node = CNode(parent, index_in_parent, lark_tree.data, id = id, name=names[lark_tree.children[1].value], short_name=lark_tree.children[1].value, max_delay=delays[lark_tree.children[1].value] if lark_tree.children[1].value in delays.keys() else np.inf)
         left_children, last_id = from_lark_parsed_to_custom_tree(lark_tree.children[0], probabilities, impacts, durations, names, delays, loops_prob, loop_round, id = id + 1, h=h, loop_thresholds=loop_thresholds, parent=tmp_node, index_in_parent=0)
         right_children, last_id = from_lark_parsed_to_custom_tree(lark_tree.children[2], probabilities, impacts, durations, names, delays, loops_prob, loop_round, id = last_id + 1, h=h, loop_thresholds=loop_thresholds, parent=tmp_node, index_in_parent=1)
         childrens = [left_children, right_children]
@@ -165,7 +165,7 @@ def dot_tree(t: CTree, h=0, prob={}, imp={}, loops={}, token_is_task=True):
             code += f'\n {dot_code}'
             child_ids.append(c.root.id)
         if label == 'choice':
-            if r.max_delay == np.Inf: dly_str = 'inf'
+            if r.max_delay == np.inf: dly_str = 'inf'
             else: dly_str = str(r.max_delay)
             code += dot_exclusive_gateway(r.id, r.name + ' id:' + str(r.id) + ' dly:' + dly_str)
         elif label == 'natural':

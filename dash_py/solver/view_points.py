@@ -227,7 +227,7 @@ class VPChecker(SUL):
             starting_dictionary, accepted_alphabet = self.generateViewPointsFromBPMTree(root.childrens[0], starting_dictionary=starting_dictionary, accepted_alphabet=accepted_alphabet)
             starting_dictionary, accepted_alphabet = self.generateViewPointsFromBPMTree(root.childrens[1], starting_dictionary=starting_dictionary, accepted_alphabet=accepted_alphabet)
         elif root.type == 'choice':
-            max_delay = root.max_delay if root.max_delay != np.Inf else MAX_DELAY
+            max_delay = root.max_delay if root.max_delay != np.inf else MAX_DELAY
             id_left_child = root.childrens[0].root.id
             id_right_child = root.childrens[1].root.id
             zeros = [0 for i in range(int(max_delay))]
