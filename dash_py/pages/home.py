@@ -1,4 +1,5 @@
 from datetime import datetime
+import os
 import dash
 from dash import html, dcc, Input, Output,State, callback
 import dash_bootstrap_components as dbc
@@ -392,8 +393,11 @@ def create_sese_diagram(n_clicks, task , impacts, durations = {}, probabilities 
     if cs.checkCorrectSyntax(bpmn_lark):
         print(f'bpmn in printing {bpmn_lark}')
         try:
+            bpmn_svg_folder = "assets/bpmnSvg/"
+            if not os.path.exists(bpmn_svg_folder):
+                os.makedirs(bpmn_svg_folder)
             # Create a new SESE Diagram from the input
-            name_svg =  "assets/bpmnSvg/bpmn_"+ str(datetime.timestamp(datetime.now())) +".svg"
+            name_svg =  bpmn_svg_folder + "bpmn_"+ str(datetime.timestamp(datetime.now())) +".svg"
             print_sese_diagram(**bpmn_lark, outfile_svg=name_svg) 
             return [None, name_svg]
         except Exception as e:

@@ -1,16 +1,6 @@
-import time
 import dash
 from dash import html, dcc
 import dash_bootstrap_components as dbc
-
-import pandas as pd
-import plotly.express as px
-
-from utils import check_syntax as cs
-from utils import automa as at
-from utils.env import ALGORITHMS, TASK_SEQ, IMPACTS, H, DURATIONS, PROBABILITIES, NAMES, DELAYS
-from utils.print_sese_diagram import print_sese_diagram
-#from solver.tree_lib import print_sese_custom_tree
 
 dash.register_page(__name__, path='/example')
 
