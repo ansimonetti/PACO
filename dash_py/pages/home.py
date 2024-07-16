@@ -478,13 +478,11 @@ def add_task(tasks_):
     Returns:
     list: A list of dictionaries, where each dictionary represents a task and its associated range slider.
     """
-    print(f'task {tasks_}')
     # If no tasks are provided, return an empty list
     if not tasks_:
         return []
 
     # Extract the tasks from the input
-    tasks_list = cs.extract_tasks(tasks_)
     print(f'tasks_list { tasks_list}')
     # Initialize an empty list to store the task data
     task_data = []
