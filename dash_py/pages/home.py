@@ -60,22 +60,22 @@ def layout():
                     #dcc.Upload(id='upload-data', children=html.Div(['Drag and Drop or ', html.A('Select Files')]), multiple=False), # Drag and drop per file ma da usapre più avanti
                     html.P("""Here is an example of a BPMN complete diagram: Task0, (Task1 || Task4), (Task3 ^ [C1] Task9, Task8 / [C2] Task2)"""),
                     html.Br(),
-                    dcc.Textarea(value=bpmn_lark[TASK_SEQ], id = 'input-bpmn', style={'width': '100%'}, persistence = True), # persistence è obbligatoria altrimenti quando ricarica la pagina (cioè ogni valta che aggiorna il graph )        
+                    dcc.Textarea(value=bpmn_lark[TASK_SEQ], id = 'input-bpmn', style={'width': '100%'}, ), # persistence = True persistence è obbligatoria altrimenti quando ricarica la pagina (cioè ogni valta che aggiorna il graph )        
                     html.Br(),
                     dbc.Button('Next', id='go-to-define-durations'),
                 ])
             ]),
             dcc.Tab(label='Durations', value='tab-2', children=[
                 html.Div([
-                    html.Div(id='task-duration'),
                     html.P('Insert the impacts list of the tasks in the following format: cost, hours. IF for some task the impacts are not defined they will be put 0 by default.'),
+                    html.Div(id='task-duration'),
                     dbc.Button('Back', id='back-to-load-bpmn'),
                     dbc.Button('Next', id='go-to-impacts-bpmn'),
                 ])
             ]),
             dcc.Tab(label='CPI: Impacts', value='tab-3', children=[
                 html.Div([
-                    dcc.Textarea(value='cost  ',  id = 'input-impacts', persistence=True, style={'width': '100%'}),
+                    dcc.Textarea(value='cost',  id = 'input-impacts', persistence=True, style={'width': '100%'}),
                     html.Div(id='impacts-table'),
                     dbc.Button('Back', id='back-to-durations'),
                     dbc.Button('Next', id='go-to-cp'),
@@ -478,17 +478,14 @@ def add_task(tasks_):
     Returns:
     list: A list of dictionaries, where each dictionary represents a task and its associated range slider.
     """
-    #########
-    ### TODO
-    ### CHECK WHY IT ADDS/APPENDS SPACES TO THE TABLE
-    #########
+    print(f'task {tasks_}')
     # If no tasks are provided, return an empty list
     if not tasks_:
         return []
 
     # Extract the tasks from the input
     tasks_list = cs.extract_tasks(tasks_)
-
+    print(f'tasks_list { tasks_list}')
     # Initialize an empty list to store the task data
     task_data = []
     # print(f"task list {tasks_list}")

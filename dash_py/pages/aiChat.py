@@ -29,6 +29,10 @@ def instructLLAMA():
         after this there is a choice between the hphs or lpls painting.
         With this choice the process is concluded. 
         The traduction is: (Cutting, ( (Bending, (HP ^ [N1]LP ) ) || ( Milling, ( FD / [C1] RD))), (HPHS / [C2] LPLS))
+        Another example: 
+        I have a process where at the beginnig the user has to do 5 surveys (call them S1, S2,S3, ...) alltogheter. 
+        Then, Based on the answer there is a nature that send me or in a T1 or T2. After I have 2 choises to make.
+        the traduction: (S1 || S2 || S3 || S4 || S5), (T1 ^ [N1] T2), (C1 / [C2] C2)
         '''
     response = llm.invoke(prompt_init)
     chat_history.append((prompt_init, response))
