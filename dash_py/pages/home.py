@@ -483,7 +483,7 @@ def add_task(tasks_):
         return []
 
     # Extract the tasks from the input
-    print(f'tasks_list { tasks_list}')
+    tasks_list = cs.extract_tasks(tasks_)
     # Initialize an empty list to store the task data
     task_data = []
     # print(f"task list {tasks_list}")
