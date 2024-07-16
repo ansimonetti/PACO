@@ -62,16 +62,27 @@ def layout():
                     html.Br(),
                     dcc.Textarea(value=bpmn_lark[TASK_SEQ], id = 'input-bpmn', style={'width': '100%'}, persistence = True), # persistence è obbligatoria altrimenti quando ricarica la pagina (cioè ogni valta che aggiorna il graph )        
                     html.Br(),
-                    dbc.Button('Next', id='go-to-define-cpi'),
+                    dbc.Button('Next', id='go-to-define-durations'),
                 ])
             ]),
-            dcc.Tab(label='CPI', value='tab-2', children=[
+            dcc.Tab(label='Durations', value='tab-2', children=[
                 html.Div([
                     html.Div(id='task-duration'),
                     html.P('Insert the impacts list of the tasks in the following format: cost, hours. IF for some task the impacts are not defined they will be put 0 by default.'),
+                    dbc.Button('Back', id='back-to-load-bpmn'),
+                    dbc.Button('Next', id='go-to-impacts-bpmn'),
+                ])
+            ]),
+            dcc.Tab(label='CPI: Impacts', value='tab-3', children=[
+                html.Div([
                     dcc.Textarea(value='cost  ',  id = 'input-impacts', persistence=True, style={'width': '100%'}),
                     html.Div(id='impacts-table'),
-                    html.Br(),
+                    dbc.Button('Back', id='back-to-durations'),
+                    dbc.Button('Next', id='go-to-cp'),
+                ])
+            ]),
+            dcc.Tab(label='CPI: Choices and natures', value='tab-4', children=[
+                html.Div([                   
                     html.P('Insert the probabilities for each natural choice. The values have to be between 0 and 1.'),
                     html.Div(id= 'probabilities'),
                     html.Br(),
@@ -81,14 +92,14 @@ def layout():
                     html.P('Insert the number of maximum loops round. The value have to be between 1 and 100.'),    
                     html.Div(id= 'loops'),
                     html.Br(),
-                    dbc.Button('Back', id='back-to-load-bpmn'),
+                    dbc.Button('Back', id='back-to-impacts'),
                     dbc.Button('Next', id='go-to-show-bpmn'),
                 ])
             ]),
             ###############################
             ### BPMN DIAGRAM USING LARK ###
             ###############################
-            dcc.Tab(label='Show BPMN', value='tab-3', children=[
+            dcc.Tab(label='Show BPMN', value='tab-5', children=[
                 dbc.Button('Create diagram', id='create-diagram-button'),
                 
                 html.Div([
@@ -115,7 +126,7 @@ def layout():
             ################
             ### STRATEGY ###
             ################
-            dcc.Tab(label='Define Strategy',  value='tab-4', children=[
+            dcc.Tab(label='Define Strategy',  value='tab-6', children=[
                 html.Div([
                     
                     html.Div(id="strategy", children=[
@@ -140,7 +151,7 @@ def layout():
                     dbc.Button('Next', id='go-to-show-strategy'), 
                 ])
             ]),
-            dcc.Tab(label='Show Strategy',  value='tab-5', children=[
+            dcc.Tab(label='Show Strategy',  value='tab-7', children=[
                 html.Div([
                     html.Div(
                         children = [
@@ -151,29 +162,33 @@ def layout():
                                 # fullscreen=True,
                             )
                         ]
-                    ),
-                    ########################
-                    ### DOWNLOAD EXAMPLE ###
-                    ########################
-                    html.Div(id="download-example", children=[
-                        html.H1("Download the example:"), 
-                        dbc.Checklist(
-                            options=[
-                                {"label": "BPMN + CPI", "value": 1},
-                                {"label": "Bound", "value": 2},
-                                {"label": "Strategy", "value": 3},
-                            ],
-                            value=[1, 2],
-                            id="switches-input",
-                            switch=True,
-                        ),
-                        dbc.Button("Download", id="btn-download"),
-                        dcc.Download(id="download"),
-                        html.Br(),
-                        dbc.Button('Back', id='back-to-strategy'),
-                        # dbc.Button('Next', id='go-to-define-strategy'),
-                    ]),
+                    ), 
+                    dbc.Button('Back', id='back-to-strategy'),
+                    dbc.Button('Next', id='go-to-download'),                   
                 ])
+            ]),
+            dcc.Tab(label='Download data',  value='tab-8', children=[
+                ########################
+                ### DOWNLOAD EXAMPLE ###
+                ########################
+                html.Div(id="download-example", children=[
+                    html.H1("Download the example:"), 
+                    dbc.Checklist(
+                        options=[
+                            {"label": "BPMN + CPI", "value": 1},
+                            {"label": "Bound", "value": 2},
+                            {"label": "Strategy", "value": 3},
+                        ],
+                        value=[1, 2],
+                        id="switches-input",
+                        switch=True,
+                    ),
+                    dbc.Button("Download", id="btn-download"),
+                    dcc.Download(id="download"),
+                    html.Br(),
+                    dbc.Button('Back', id='back-to-show-strategy'),
+                    # dbc.Button('Next', id='go-to-define-strategy'),
+                ]),
             ]),
             # dcc.Tab(label='Strategy Explainer', value='tab-6', children=[
             #     html.Div([
@@ -191,14 +206,22 @@ def layout():
 
 @callback(
     Output('tabs', 'value'),
-    [Input('go-to-define-cpi', 'n_clicks'),
+    [
      Input('back-to-load-bpmn', 'n_clicks'),
      Input('go-to-show-bpmn', 'n_clicks'),
      Input('back-to-load-cpi', 'n_clicks'),
      Input('go-to-define-strategy', 'n_clicks'),
      Input('back-to-show-bpmn', 'n_clicks'),
      Input('go-to-show-strategy', 'n_clicks'),
-     Input('back-to-strategy', 'n_clicks')],
+     Input('back-to-strategy', 'n_clicks'), 
+     Input('go-to-define-durations', 'n_clicks'),
+     Input('go-to-impacts-bpmn', 'n_clicks'),
+     Input('back-to-durations', 'n_clicks'),
+     Input('go-to-cp', 'n_clicks'),
+     Input('back-to-impacts', 'n_clicks'),
+     Input('back-to-show-strategy', 'n_clicks'),
+     Input('go-to-download', 'n_clicks'),
+    ],
     prevent_initial_call=True
 )
 def navigate_tabs(*args):
@@ -212,14 +235,21 @@ def navigate_tabs(*args):
 
     # Mapping from button ID to tab value
     tab_mapping = {
+        'go-to-define-durations': 'tab-2',
+        'go-to-impacts-bpmn': 'tab-3',
+        'back-to-durations': 'tab-2',
+        'go-to-cp': 'tab-4',
+        'back-to-impacts': 'tab-3',
         'go-to-define-cpi': 'tab-2',
         'back-to-load-bpmn': 'tab-1',
-        'go-to-show-bpmn': 'tab-3',
-        'back-to-load-cpi': 'tab-2',
-        'go-to-define-strategy': 'tab-4',
-        'back-to-show-bpmn': 'tab-3',
-        'go-to-show-strategy': 'tab-5',
-        'back-to-strategy': 'tab-4',
+        'go-to-show-bpmn': 'tab-5',
+        'back-to-load-cpi': 'tab-4',
+        'go-to-define-strategy': 'tab-6',
+        'back-to-show-bpmn': 'tab-5',
+        'go-to-show-strategy': 'tab-7',
+        'back-to-strategy': 'tab-6',
+        'back-to-show-strategy': 'tab-7',
+        'go-to-download': 'tab-8',
     }
 
     return tab_mapping.get(button_id, 'tab-1')  # Default to 'tab-1' if button_id is not found
