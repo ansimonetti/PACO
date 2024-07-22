@@ -10,7 +10,7 @@ bpmn_ex = {
           "impacts": {"SimpleTask1": [11, 15], "Task1": [4, 2]}, 
           "durations": {"SimpleTask1": 100, "Task1": 100}, 
           "impacts_names": ["cost", "hours"], 
-          "probabilities": {}, "names": {}, "delays": {}
+          "probabilities": {}, "names": {}, "delays": {},'loop_prob' : {}
         },
 
     "bpmn_only_choices": {"expression": "SimpleTask1, (Task1 / [C1] T2)", 
@@ -18,7 +18,7 @@ bpmn_ex = {
           "impacts": {"SimpleTask1": [11, 15], "Task1": [4, 2] , "T2": [3, 1]}, 
           "durations": {"SimpleTask1": 100, "Task1": 100, "T2":100}, 
           "impacts_names": ["cost", "hours"], 
-          "probabilities": {}, "names": {}, "delays": {}
+          "probabilities": {}, "names": {}, "delays": {},'loop_prob' : {}
         },
     
     "bpmn_only_natures": {"expression": "SimpleTask1, (Task1 ^ [N1] T2)", 
@@ -26,7 +26,7 @@ bpmn_ex = {
           "impacts": {"SimpleTask1": [11, 15], "Task1": [4, 2], "T2": [3, 1]}, 
           "durations": {"SimpleTask1": 100, "Task1": 100, "T2":100}, 
           "impacts_names": ["cost", "hours"], 
-          "probabilities": {"N1": 0.6}, "names": {}, "delays": {}
+          "probabilities": {"N1": 0.6}, "names": {}, "delays": {},'loop_prob' : {}
         },
     
     "bpmn_seq_choices": {"expression": "SimpleTask1,  (Task1 / [C1] T2),  (T3 / [C2] T4)", 
@@ -34,7 +34,7 @@ bpmn_ex = {
           "impacts": {"SimpleTask1": [11, 15], "Task1": [4, 2], "T2": [3, 1] , "T3": [8, 9], "T4": [10, 5]}, 
           "durations": {"SimpleTask1": 100, "Task1": 100}, 
           "impacts_names": ["cost", "hours"], 
-          "probabilities": {}, "names": {}, "delays": {}
+          "probabilities": {}, "names": {}, "delays": {},'loop_prob' : {}
         },
 
     "bpmn_seq_natures": {"expression": "SimpleTask1,  (Task1 ^ [N1] T2),  (T3 ^ [N2] T4)", 
@@ -42,7 +42,7 @@ bpmn_ex = {
           "impacts": {"SimpleTask1": [11, 15], "Task1": [4, 2], "T2": [3, 1] , "T3": [8, 9], "T4": [10, 5]}, 
           "durations": {"SimpleTask1": 100, "Task1": 100}, 
           "impacts_names": ["cost", "hours"], 
-          "probabilities": {"N1": 0.6, "N2": 0.7}, "names": {}, "delays": {}
+          "probabilities": {"N1": 0.6, "N2": 0.7}, "names": {}, "delays": {}, 'loop_prob' : {}
         },
 
     "bpmn_choices_natures": {"expression": "(Cutting, ((HP ^ [N1]LP ) || ( FD / [C1] RD)), (HPHS / [C2] LPLS))", 
@@ -50,7 +50,7 @@ bpmn_ex = {
           "impacts": {"Cutting": [11, 15], "HP": [4, 2], "LP": [3, 1] , "FD": [8, 9], "RD": [10, 5] , "HPHS": [4, 7], "LPLS": [3, 8]}, 
           "durations": {"Cutting": 1, "HP": 1, "LP": 1, "FD": 1, "RD":1 , "HPHS": 1, "LPLS": 1}, 
           "impacts_names": ["cost", "hours"], 
-          "probabilities": {"N1": 0.6}, "names": {}, "delays": {}
+          "probabilities": {"N1": 0.6}, "names": {}, "delays": {},'loop_prob' : {}
         },
 }
 
