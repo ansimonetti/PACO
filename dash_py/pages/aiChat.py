@@ -59,7 +59,7 @@ layout = html.Div([
     prevent_initial_call=True
 )
 def update_output(n_clicks, prompt):
-    instructLLAMA()
+    #instructLLAMA()
     if prompt:
         print(prompt)
         try:
