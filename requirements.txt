@@ -11,3 +11,6 @@ matplotlib
 dash-bootstrap-components
 pandas
 dash_svg
+dash
+langchain_community
+torch
