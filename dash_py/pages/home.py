@@ -1,3 +1,4 @@
+import base64
 from datetime import datetime
 import os
 import dash
@@ -6,6 +7,7 @@ import dash_bootstrap_components as dbc
 import dash_svg as svg
 import pandas as pd
 import plotly.express as px
+from utils.utils_preparing_diagram import *
 from utils import check_syntax as cs
 from utils import automa as at
 import json
@@ -21,7 +23,7 @@ from utils.print_sese_diagram import print_sese_diagram
 dash.register_page(__name__, path='/')
 # SimpleTask1, Task1 || Task, Task3 ^ Task9
 bpmn_lark = {
-    TASK_SEQ: 'SimpleTask1, Task1 || Task, Task3 ^ [C1] Task9',
+    TASK_SEQ: 'SimpleTask1, Task1 || Task, Task3 ^ [N1] Task9',
     H: 0, # indicates the index of splitting to separate non-cumulative and cumulative impacts impact_vector[0:H] for cumulative impacts and impact_vector[H+1:] otherwise
     IMPACTS: {},
     DURATIONS: {},
@@ -57,11 +59,31 @@ def layout():
             dcc.Tab(label='BPMN', value='tab-1', children=[
                 html.Div([
                     html.H1('Insert your BPMN here:'),
-                    #dcc.Upload(id='upload-data', children=html.Div(['Drag and Drop or ', html.A('Select Files')]), multiple=False), # Drag and drop per file ma da usapre più avanti
+                    dcc.Upload(
+                        id='upload-data',
+                        children=html.Div([
+                            'Drag and Drop or ',
+                            html.A('Select a JSON File')
+                        ]),
+                        style={
+                            'width': '100%',
+                            'height': '60px',
+                            'lineHeight': '60px',
+                            'borderWidth': '1px',
+                            'borderStyle': 'dashed',
+                            'borderRadius': '5px',
+                            'textAlign': 'center',
+                            'margin': '10px'
+                        },
+                        # Allow multiple files to be uploaded
+                        multiple=True
+                    ),
+                    html.Div(id='output-data-upload'),
+                    html.Br(),
                     html.P("""Here is an example of a BPMN complete diagram: Task0, (Task1 || Task4), (Task3 ^ [C1] Task9, Task8 / [C2] Task2)"""),
                     html.Br(),
                     dcc.Textarea(value=bpmn_lark[TASK_SEQ], id = 'input-bpmn', style={'width': '100%'}, ), # persistence = True persistence è obbligatoria altrimenti quando ricarica la pagina (cioè ogni valta che aggiorna il graph )        
-                    html.Br(),
+                    html.Br(),                    
                     dbc.Button('Next', id='go-to-define-durations'),
                 ])
             ]),
@@ -253,6 +275,56 @@ def navigate_tabs(*args):
     }
 
     return tab_mapping.get(button_id, 'tab-1')  # Default to 'tab-1' if button_id is not found
+
+############################
+
+## UPLOAD JSON FILE
+
+###########################
+
+def parse_contents(contents, filename):
+    content_type, content_string = contents.split(',')
+    decoded = base64.b64decode(content_string)
+    try:
+        print(filename)
+        if 'json' in filename:
+            # Assume that the user uploaded a json file
+            data = json.loads(decoded)
+            bpmn = data['bpmn']
+            tasks = bpmn['expression']
+            return html.Div(children=[
+                prepare_task_duration(tasks_=tasks, durations=bpmn['durations']),
+                prepare_task_impacts(tasks_=tasks, impacts=",".join(bpmn['impacts_names']), impacts_dict=bpmn['impacts']),
+                prepare_task_probabilities(tasks_=tasks, prob=bpmn['probabilities']),
+                prepare_task_delays(tasks_=tasks, delays=bpmn['delays']),
+                prepare_task_loops(tasks_=tasks, loops=bpmn['loop_round']),
+            ]) 
+            return [add_impacts(bpmn['expression'],  ",".join(bpmn['impacts_names'])),
+                    add_task_durations(bpmn['expression']),
+                    add_probabilities(bpmn['expression']),
+                    add_delays(bpmn['expression']),
+                    add_loops_number(bpmn['expression'])
+                    ]
+            return html.Div([
+                html.H5(filename),
+                html.Pre(json.dumps(data['bpmn'], indent=2))
+            ])
+    except Exception as e:
+        print(e)
+        return html.Div([
+            'There was an error processing this file.'
+        ])
+
+@callback(Output('output-data-upload', 'children'),
+        Input('upload-data', 'contents'),
+        State('upload-data', 'filename')
+        )
+def update_output(list_of_contents, list_of_names):
+    if list_of_contents is not None and len(list_of_contents) == 1:
+        children = [
+            parse_contents(c, n) for c, n in zip(list_of_contents, list_of_names)]
+        return children
+
 
 #######################
 
@@ -465,7 +537,7 @@ def create_sese_diagram(n_clicks, task , impacts, durations = {}, probabilities 
     Output('task-duration', 'children'), 
     Input('input-bpmn', 'value'),
 )
-def add_task(tasks_):
+def add_task_durations(tasks_):
     """
     This function takes a list of tasks and adds a range slider for each task's duration.
     The range slider allows the user to select a duration for each task.
@@ -476,42 +548,13 @@ def add_task(tasks_):
     tasks_ (list): The list of tasks.
 
     Returns:
-    list: A list of dictionaries, where each dictionary represents a task and its associated range slider.
+    dbc table with the tables
     """
     # If no tasks are provided, return an empty list
     if not tasks_:
         return []
-
-    # Extract the tasks from the input
-    tasks_list = cs.extract_tasks(tasks_)
-    # Initialize an empty list to store the task data
-    task_data = []
-    # print(f"task list {tasks_list}")
-    # Iterate over the tasks
-    for i, task in enumerate(tasks_list):
-        # For each task, append a dictionary to the task data list
-        # The dictionary contains the task name and a range slider for the task's duration
-        task_data.append({
-            'Task': task,
-            'Duration': dcc.RangeSlider(
-                id=f'range-slider-{i}',
-                min=min_duration,
-                max=max_duration,
-                value=value_interval,
-                marks=marks,
-                # tooltip={
-                #     "placement": "bottom",
-                #     "always_visible": True,
-                # }
-            )
-        })
-    # print(task_data)
     # Convert the task data list into a DataFrame and then into a Table component
-    return dbc.Table.from_dataframe(
-        pd.DataFrame(task_data),
-        id = 'durations-task-table',
-        style = {'width': '100%', }
-    )
+    return prepare_task_duration(tasks_)
 
 
 #######################
@@ -601,35 +644,7 @@ def add_probabilities(tasks_):
     if not tasks_:
         return []
 
-    # Extract the tasks from the input
-    tasks_list = cs.extract_choises_nat(tasks_)
-    tasks_list += cs.extract_loops(tasks_)
-    # Initialize an empty list to store the task data
-    task_data = []
-
-    # Iterate over the impacts
-    for i, task in enumerate(tasks_list):
-        # For each impact, append a dictionary to the task data list
-        # The dictionary contains the impact and an input field for the impact
-        task_data.append({
-            'Natural & Loops': task,
-            'Set Probabilities': dcc.Input(
-                id=f'range-slider-{i}',
-                type='number',
-                value=0.5,
-                step="0.01",
-                min= 0,
-                max=1
-            )
-        })
-
-    # Convert the task data list into a DataFrame and then into a Table component
-    # The Table component is returned and will be displayed in the probabilities component
-    return dbc.Table.from_dataframe(
-        pd.DataFrame(task_data),
-        id = 'choose-prob',
-        style = {'width': '100%', 'textalign': 'center'}
-    )
+    return prepare_task_probabilities(tasks_=tasks_)
 
 
 #######################
@@ -660,34 +675,7 @@ def add_delays(tasks_):
     if not tasks_:
         return []
 
-    # Extract the tasks from the input
-    tasks_list = cs.extract_choises_user(tasks_)
-
-    # Initialize an empty list to store the task data
-    task_data = []
-
-    # Iterate over the impacts
-    for i, task in enumerate(tasks_list):
-        # For each impact, append a dictionary to the task data list
-        # The dictionary contains the impact and an input field for the impact
-        task_data.append({
-            'Choises': task,
-            'Set Delays': dcc.Input(
-                id=f'range-slider-{i}',
-                type='number',
-                value=0,
-                min= 0,
-                max=100
-            )
-        })
-
-    # Convert the task data list into a DataFrame and then into a Table component
-    # The Table component is returned and will be displayed in the 'delays' component
-    return dbc.Table.from_dataframe(
-        pd.DataFrame(task_data),
-        id = 'choose-prob',
-        style = {'width': '100%', 'textalign': 'center'}
-    )
+    return prepare_task_delays(tasks_=tasks_)
 
 
 #######################
@@ -708,41 +696,7 @@ def add_impacts(tasks_, impacts):
     # If no tasks are provided, return an empty list
     if not tasks_:
         return []
-
-    # Extract the tasks from the input
-    
-    if not tasks_:
-        return []
-    impacts = impacts.split(sep=',')
-    # Extract the tasks from the input
-    tasks_list = cs.extract_tasks(tasks_)
-    # Initialize an empty list to store the task data
-    task_data = []
-
-    # Iterate over the tasks
-    for i, task in enumerate(tasks_list):
-        # Initialize an empty dictionary to store the task data
-        task_dict = {'Task': task}
-
-        # Iterate over the impacts
-        for j, impact in enumerate(impacts):
-            # For each impact, add a slider to the task data dictionary
-            task_dict[impact] = dcc.Input(
-                id=f'range-slider-{i}-{j}',
-                type='number',
-                value=0,
-                min=0,
-            )
-
-        # Append the task data dictionary to the task data list
-        task_data.append(task_dict)
-    # Convert the task data list into a DataFrame and then into a Table component
-    # The Table component is returned and will be displayed in the 'impacts-table' component
-    return dbc.Table.from_dataframe(
-        pd.DataFrame(task_data),
-        id = 'impacts-tab',
-        style = {'width': '100%', 'textalign': 'center'}
-    )
+    return prepare_task_impacts(tasks_=tasks_, impacts=impacts)
 
 
 #######################
@@ -796,35 +750,7 @@ def add_loops_number(tasks_):
     # If no tasks are provided, return an empty list
     if not tasks_:
         return []
-
-    # Extract the tasks from the input
-    tasks_list = cs.extract_loops(tasks_)
-    # Initialize an empty list to store the task data
-    task_data = []
-
-    # Iterate over the impacts
-    for i, task in enumerate(tasks_list):
-        # For each impact, append a dictionary to the task data list
-        # The dictionary contains the impact and an input field for the impact
-        task_data.append({
-            'Loops': task,
-            'Allowed iterations': dcc.Input(
-                id=f'range-slider-{i}',
-                type='number',
-                value=1,
-                min= 1,
-                max=100
-            )
-        })
-
-    # Convert the task data list into a DataFrame and then into a Table component
-    # The Table component is returned and will be displayed in the probabilities component
-    return dbc.Table.from_dataframe(
-        pd.DataFrame(task_data),
-        id = 'choose-loop-round',
-        style = {'width': '100%', 'textalign': 'center'}
-    )
-
+    return prepare_task_loops(tasks_=tasks_)
 
 def divide_dict(dictionary, keys):
     # Initialize an empty dictionary for the loop

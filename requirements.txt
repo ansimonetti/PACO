@@ -14,3 +14,4 @@ dash_svg
 dash
 langchain_community
 torch
+base64
