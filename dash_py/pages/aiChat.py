@@ -4,8 +4,6 @@ import dash_bootstrap_components as dbc
 from langchain_community.llms import Ollama
 import torch
 from utils.env import sese_diagram_grammar
-from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
-
 dash.register_page(__name__, path='/ai')
 device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 print(device)
@@ -43,24 +41,24 @@ def instructLLAMA():
     print(chat_history)
 
 
-llm = Ollama(
-    model="llama3",
-    num_gpu=1,
-    callbacks=[StreamingStdOutCallbackHandler()]
-)
-
+llm = Ollama(model="llama3",num_gpu = 1)
 # Initialize chat history
-chat_history = []
 # instructLLAMA()
+chat_history = []
+
 
 layout = html.Div([
     dbc.Textarea(id='input-box', placeholder='Type your message here...'),
     html.Br(),
     dbc.Button('Send', id='send-button'),
-    dcc.Interval(id='interval-component', interval=1*1000, n_intervals=0),
-    html.Div(id='chat-output')
+    dcc.Loading(
+        id="loading-spinner",
+        type="default",
+        overlay_style={"visibility":"visible", "filter": "blur(2px)"},
+        custom_spinner=html.H2(["I'm thinking...", dcc.Loading(id="loading-1", type="default",)]), #,  dbc.Spinner(color="primary")
+        children=html.Div(id='chat-output')
+    )
 ])
-
 @callback(
     Output('chat-output', 'children'),
     [Input('send-button', 'n_clicks')],
@@ -70,9 +68,13 @@ layout = html.Div([
 def update_output(n_clicks, prompt):
     if prompt:
         print(prompt)
-        try:
+        try:            
+            # Generate the response
             response = llm.invoke(prompt)
-            chat_history.append((prompt, ""))
+            print(f' response {response}')
+            
+            # Add the user's message and the assistant's response to the chat history
+            chat_history.append((prompt, response))
             
             # Generate the chat history for display
             chat_display = []
@@ -80,12 +82,33 @@ def update_output(n_clicks, prompt):
                 chat_display.append(html.P(f"User: {user_msg}"))
                 chat_display.append(html.P(f"Assistant: {assistant_msg}"))
             
-            # Stream the response
-            for token in response:
-                chat_history[-1] = (prompt, chat_history[-1][1] + token)
-                chat_display[-1] = html.P(f"Assistant: {chat_history[-1][1]}")
-                yield html.Div(chat_display)
+            return html.Div(chat_display)
         except Exception as e:
             return html.P(f"Error: {e}")
 
-
+# @callback(
+#     Output('chat-output', 'children'),
+#     [Input('send-button', 'n_clicks')],
+#     [State('input-box', 'value')],
+#     prevent_initial_call=True
+# )
+# def update_output(n_clicks, prompt):
+#     #instructLLAMA()
+#     if prompt:
+#         print(prompt)
+#         try:
+#             response = llm.invoke(prompt)
+#             print(f' response {response}')
+            
+#             # Add the user's message and the assistant's response to the chat history
+#             chat_history.append((prompt, response))
+            
+#             # Generate the chat history for display
+#             chat_display = []
+#             for user_msg, assistant_msg in chat_history:
+#                 chat_display.append(html.P(f"User: {user_msg}"))
+#                 chat_display.append(html.P(f"Assistant: {assistant_msg}"))
+            
+#             return html.Div(chat_display)
+#         except Exception as e:
+#             return html.P(f"Error: {e}")
