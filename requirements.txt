@@ -15,3 +15,5 @@ dash
 langchain_community
 torch
 base64
+fastapi
+pydantic

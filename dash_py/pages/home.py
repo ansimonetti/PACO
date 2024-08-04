@@ -82,7 +82,9 @@ def layout():
                     html.Br(),
                     html.P("""Here is an example of a BPMN complete diagram: Task0, (Task1 || Task4), (Task3 ^ [C1] Task9, Task8 / [C2] Task2)"""),
                     html.Br(),
-                    dcc.Textarea(value=bpmn_lark[TASK_SEQ], id = 'input-bpmn', style={'width': '100%'}, ), # persistence = True persistence è obbligatoria altrimenti quando ricarica la pagina (cioè ogni valta che aggiorna il graph )        
+                    html.Div(id='loaded-bpmn-file'),
+                    html.Br(),
+                    dcc.Textarea(value='', id = 'input-bpmn', style={'width': '100%'}, ), # persistence = True persistence è obbligatoria altrimenti quando ricarica la pagina (cioè ogni valta che aggiorna il graph )        
                     html.Br(),                    
                     dbc.Button('Next', id='go-to-define-durations'),
                 ])
@@ -128,7 +130,7 @@ def layout():
                     html.H3("BPMN diagram in lark:"),
                     #html.Img(id='lark-diagram1', src= 'assets/graph.svg', style={'height': '500', 'width': '1000'}),
                     html.Iframe(id="lark-frame",
-                                src=PATH_IMAGE_BPMN_LARK_SVG,
+                                src='',#PATH_IMAGE_BPMN_LARK_SVG,
                                 style={"height": "70vh", "width": "95vw", 'border':'none'}), #style={'height': '100%', 'width': '100%'}
                     # html.Embed(
                     #     id="lark-frame",
@@ -292,38 +294,38 @@ def parse_contents(contents, filename):
             data = json.loads(decoded)
             bpmn = data['bpmn']
             tasks = bpmn['expression']
-            return html.Div(children=[
-                prepare_task_duration(tasks_=tasks, durations=bpmn['durations']),
-                prepare_task_impacts(tasks_=tasks, impacts=",".join(bpmn['impacts_names']), impacts_dict=bpmn['impacts']),
-                prepare_task_probabilities(tasks_=tasks, prob=bpmn['probabilities']),
-                prepare_task_delays(tasks_=tasks, delays=bpmn['delays']),
-                prepare_task_loops(tasks_=tasks, loops=bpmn['loop_round']),
-            ]) 
-            return [add_impacts(bpmn['expression'],  ",".join(bpmn['impacts_names'])),
-                    add_task_durations(bpmn['expression']),
-                    add_probabilities(bpmn['expression']),
-                    add_delays(bpmn['expression']),
-                    add_loops_number(bpmn['expression'])
-                    ]
-            return html.Div([
-                html.H5(filename),
-                html.Pre(json.dumps(data['bpmn'], indent=2))
-            ])
+            print(data)
+            task_duration = prepare_task_duration(tasks_=tasks, durations=bpmn['durations'])
+            task_impacts = prepare_task_impacts(tasks_=tasks, impacts=",".join(bpmn['impacts_names']), impacts_dict=bpmn['impacts'])
+            task_probabilities = prepare_task_probabilities(tasks_=tasks, prob=bpmn['probabilities'])
+            task_delays = prepare_task_delays(tasks_=tasks, delays=bpmn['delays'])
+            task_loops = prepare_task_loops(tasks_=tasks, loops=bpmn['loop_round'])
+            tasks = html.P(f"""Here is provided the bpmn schema from the file: 
+                           {tasks} 
+                           If you want to modify it, just copy and paste in the textarea below. 
+                           Note that this will reset all the other values to the default one.""")
+            return tasks, task_duration, task_impacts, task_probabilities, task_delays, task_loops
     except Exception as e:
         print(e)
-        return html.Div([
-            'There was an error processing this file.'
-        ])
+        return None, None, None, None, None, None
 
-@callback(Output('output-data-upload', 'children'),
-        Input('upload-data', 'contents'),
-        State('upload-data', 'filename')
-        )
+@callback([
+        Output('loaded-bpmn-file', 'children'),
+        Output('task-duration', 'children',allow_duplicate=True),
+        Output('impacts-table', 'children',allow_duplicate=True),
+        Output('probabilities', 'children',allow_duplicate=True),
+        Output('delays', 'children',allow_duplicate=True),
+        Output('loops', 'children',allow_duplicate=True),
+    ],
+    [Input('upload-data', 'contents')],
+    [State('upload-data', 'filename')],
+    allow_duplicate=True,
+    prevent_initial_call=True
+    )
 def update_output(list_of_contents, list_of_names):
     if list_of_contents is not None and len(list_of_contents) == 1:
-        children = [
-            parse_contents(c, n) for c, n in zip(list_of_contents, list_of_names)]
-        return children
+        children = [parse_contents(c, n) for c, n in zip(list_of_contents, list_of_names) ]
+        return parse_contents(list_of_contents[0], list_of_names[0])
 
 
 #######################
@@ -534,8 +536,10 @@ def create_sese_diagram(n_clicks, task , impacts, durations = {}, probabilities 
 #######################
 
 @callback(
-    Output('task-duration', 'children'), 
+    Output('task-duration', 'children',allow_duplicate=True), 
     Input('input-bpmn', 'value'),
+    allow_duplicate=True,
+    prevent_initial_call=True
 )
 def add_task_durations(tasks_):
     """
@@ -623,9 +627,10 @@ def add_task(n_clicks, impacts):
 #######################
 
 @callback(
-    Output('probabilities', 'children'),
+    Output('probabilities', 'children',allow_duplicate=True),
     Input('input-bpmn', 'value'),
-    allow_duplicate=True
+    allow_duplicate=True,
+    prevent_initial_call=True
 )
 def add_probabilities(tasks_):
     """
@@ -654,9 +659,10 @@ def add_probabilities(tasks_):
 #######################
 
 @callback(
-    Output('delays', 'children'),
+    Output('delays', 'children',allow_duplicate=True),
     Input('input-bpmn', 'value'),
-    allow_duplicate=True
+    allow_duplicate=True,
+    prevent_initial_call=True
 )
 def add_delays(tasks_):
     """
@@ -685,10 +691,11 @@ def add_delays(tasks_):
 #######################
 
 @callback(
-    Output('impacts-table', 'children'),
+    Output('impacts-table', 'children',allow_duplicate=True),
     Input('input-bpmn', 'value'),
     Input('input-impacts', 'value'),
-    allow_duplicate=True
+    allow_duplicate=True,
+    prevent_initial_call=True
 )
 def add_impacts(tasks_, impacts):
     """
@@ -733,9 +740,10 @@ def func(n_clicks, switches):
 #######################
 
 @callback(
-    Output('loops', 'children'),
+    Output('loops', 'children',allow_duplicate=True),
     Input('input-bpmn', 'value'),
-    allow_duplicate=True
+    allow_duplicate=True,
+    prevent_initial_call=True
 )
 def add_loops_number(tasks_):
     """
