@@ -46,7 +46,6 @@ def instructLLAMA():
 llm = Ollama(
     model="llama3",
     num_gpu=1,
-    streaming=True,
     callbacks=[StreamingStdOutCallbackHandler()]
 )
 
