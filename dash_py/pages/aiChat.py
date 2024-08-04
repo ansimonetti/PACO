@@ -1,9 +1,11 @@
 import dash
-from dash import html, Input, Output, State, callback
+from dash import html, Input, Output, State, callback, dcc
 import dash_bootstrap_components as dbc
 from langchain_community.llms import Ollama
 import torch
 from utils.env import sese_diagram_grammar
+from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+
 dash.register_page(__name__, path='/ai')
 device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 print(device)
@@ -19,6 +21,7 @@ def instructLLAMA():
     prompt_init += f'the grammar is {sese_diagram_grammar}. \n All the different section of the process are inserted in (). These can be nested as (T1, (T2,T3)).'    
     response = llm.invoke(prompt_init)
     chat_history.append((prompt_init, response))
+    print(chat_history)
     prompt_init += '''
         Here an example. 
         User: depicts a metal manufacturing process that involves cutting, milling,
@@ -40,7 +43,13 @@ def instructLLAMA():
     print(chat_history)
 
 
-llm = Ollama(model="llama3",num_gpu = 1)
+llm = Ollama(
+    model="llama3",
+    num_gpu=1,
+    streaming=True,
+    callbacks=[StreamingStdOutCallbackHandler()]
+)
+
 # Initialize chat history
 chat_history = []
 # instructLLAMA()
@@ -49,6 +58,7 @@ layout = html.Div([
     dbc.Textarea(id='input-box', placeholder='Type your message here...'),
     html.Br(),
     dbc.Button('Send', id='send-button'),
+    dcc.Interval(id='interval-component', interval=1*1000, n_intervals=0),
     html.Div(id='chat-output')
 ])
 
@@ -59,15 +69,11 @@ layout = html.Div([
     prevent_initial_call=True
 )
 def update_output(n_clicks, prompt):
-    #instructLLAMA()
     if prompt:
         print(prompt)
         try:
             response = llm.invoke(prompt)
-            print(f' response {response}')
-            
-            # Add the user's message and the assistant's response to the chat history
-            chat_history.append((prompt, response))
+            chat_history.append((prompt, ""))
             
             # Generate the chat history for display
             chat_display = []
@@ -75,7 +81,12 @@ def update_output(n_clicks, prompt):
                 chat_display.append(html.P(f"User: {user_msg}"))
                 chat_display.append(html.P(f"Assistant: {assistant_msg}"))
             
-            return html.Div(chat_display)
+            # Stream the response
+            for token in response:
+                chat_history[-1] = (prompt, chat_history[-1][1] + token)
+                chat_display[-1] = html.P(f"Assistant: {chat_history[-1][1]}")
+                yield html.Div(chat_display)
         except Exception as e:
             return html.P(f"Error: {e}")
+
 
