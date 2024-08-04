@@ -300,6 +300,7 @@ def parse_contents(contents, filename):
             task_probabilities = prepare_task_probabilities(tasks_=tasks, prob=bpmn['probabilities'])
             task_delays = prepare_task_delays(tasks_=tasks, delays=bpmn['delays'])
             task_loops = prepare_task_loops(tasks_=tasks, loops=bpmn['loop_round'])
+            bpmn_lark[TASK_SEQ] = tasks
             tasks = html.P(f"""Here is provided the bpmn schema from the file: 
                            {tasks} 
                            If you want to modify it, just copy and paste in the textarea below. 
@@ -424,7 +425,12 @@ def create_sese_diagram(n_clicks, task , impacts, durations = {}, probabilities 
 
     #check the syntax of the input if correct print the diagram otherwise an error message
     try:
-        bpmn_lark[TASK_SEQ] = task
+        if task == '' and bpmn_lark[TASK_SEQ] == '':
+            raise Exception
+        elif task != '' and bpmn_lark[TASK_SEQ] == '':
+            bpmn_lark[TASK_SEQ] = task
+        else:
+            task = bpmn_lark[TASK_SEQ]
     except Exception as e:
         print(f'Error at 1st step while parsing the BPMN tasks sequence: {e}')
         return [  # dbc.Alert(f'Error while parsing the bpmn: {e}', color="danger")]
