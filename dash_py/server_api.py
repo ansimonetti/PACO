@@ -37,7 +37,7 @@ class BPMNPrinting(BaseModel):
     graph_options: Optional[Dict] = {}
 
 class StrategyFounderAlgo(BaseModel):
-    bpmn: dict
+    bpmn: BPMNDefinition
     bound: List[int]
     algo: str
 
@@ -48,9 +48,9 @@ async def get():
 @app.get("/print_sese_diagram", response_class=FileResponse)
 async def get(request: BPMNPrinting):
     try:
-        if not isinstance(request.bpmn, dict):
+        if not isinstance(request.bpmn, BPMNDefinition):
             return HTTPException(status_code=400, detail="Invalid input")
-        if not checkCorrectSyntax(request.bpmn):
+        if not checkCorrectSyntax(dict(request.bpmn)):
             return HTTPException(status_code=400, detail="Invalid BPMN syntax")
         bpmn = request.bpmn
         print(bpmn)
@@ -77,14 +77,14 @@ async def get(request: BPMNPrinting):
 @app.post("/calc_strategy_paco")
 async def calc_strategy_paco_api(request: StrategyFounderAlgo):
     try:
-        if not isinstance(request.bpmn, dict) or not isinstance(request.bound, list):
+        if not isinstance(request.bpmn, BPMNDefinition):
             return HTTPException(status_code=400, detail="Invalid input")
-        if not checkCorrectSyntax(request.bpmn):
+        if not checkCorrectSyntax(dict(request.bpmn)):
             return HTTPException(status_code=400, detail="Invalid BPMN syntax")
         # if not check_algo_is_usable(request.bpmn, request.algo):
         #     return HTTPException(status_code=400, detail="The algorithm is not usable")
         print(request.bpmn, request.bound)
-        result = calc_strategy_paco(request.bpmn, request.bound)# calc_strat(bpmn = request.bpmn, bound = request.bound, algo = request.algo)
+        result = calc_strategy_paco(dict(request.bpmn), request.bound)# calc_strat(bpmn = request.bpmn, bound = request.bound, algo = request.algo)
         if result.get('error') != None:
             return HTTPException(status_code=400, detail=result.get('error'))
         return result
