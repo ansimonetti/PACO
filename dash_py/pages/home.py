@@ -23,7 +23,7 @@ from utils.print_sese_diagram import print_sese_diagram
 dash.register_page(__name__, path='/')
 # SimpleTask1, Task1 || Task, Task3 ^ Task9
 bpmn_lark = {
-    TASK_SEQ: 'SimpleTask1, Task1 || Task, Task3 ^ [N1] Task9',
+    TASK_SEQ: '',
     H: 0, # indicates the index of splitting to separate non-cumulative and cumulative impacts impact_vector[0:H] for cumulative impacts and impact_vector[H+1:] otherwise
     IMPACTS: {},
     DURATIONS: {},
@@ -292,20 +292,19 @@ def parse_contents(contents, filename):
         if 'json' in filename:
             # Assume that the user uploaded a json file
             data = json.loads(decoded)
-            bpmn = data['bpmn']
-            tasks = bpmn['expression']
-            print(data)
-            task_duration = prepare_task_duration(tasks_=tasks, durations=bpmn['durations'])
-            task_impacts = prepare_task_impacts(tasks_=tasks, impacts=",".join(bpmn['impacts_names']), impacts_dict=bpmn['impacts'])
-            task_probabilities = prepare_task_probabilities(tasks_=tasks, prob=bpmn['probabilities'])
-            task_delays = prepare_task_delays(tasks_=tasks, delays=bpmn['delays'])
-            task_loops = prepare_task_loops(tasks_=tasks, loops=bpmn['loop_round'])
-            bpmn_lark[TASK_SEQ] = tasks
+            bpmn_lark = data['bpmn']
+            tasks = bpmn_lark[TASK_SEQ]
+            print(bpmn_lark)
+            task_duration = prepare_task_duration(tasks_=tasks, durations=bpmn_lark['durations'])
+            task_impacts = prepare_task_impacts(tasks_=tasks, impacts=",".join(bpmn_lark['impacts_names']), impacts_dict=bpmn_lark['impacts'])
+            task_probabilities = prepare_task_probabilities(tasks_=tasks, prob=bpmn_lark['probabilities'])
+            task_delays = prepare_task_delays(tasks_=tasks, delays=bpmn_lark['delays'])
+            task_loops = prepare_task_loops(tasks_=tasks, loops=bpmn_lark['loop_round'])
             tasks = html.P(f"""Here is provided the bpmn schema from the file: 
                            {tasks} 
                            If you want to modify it, just copy and paste in the textarea below. 
                            Note that this will reset all the other values to the default one.""")
-            return tasks, task_duration, task_impacts, task_probabilities, task_delays, task_loops
+            return tasks, task_duration, task_impacts, task_probabilities, task_delays, task_loops, bpmn_lark
     except Exception as e:
         print(e)
         return None, None, None, None, None, None
@@ -317,6 +316,7 @@ def parse_contents(contents, filename):
         Output('probabilities', 'children',allow_duplicate=True),
         Output('delays', 'children',allow_duplicate=True),
         Output('loops', 'children',allow_duplicate=True),
+        Output('bpmn-lark-store', 'data',allow_duplicate=True),
     ],
     [Input('upload-data', 'contents')],
     [State('upload-data', 'filename')],
@@ -339,9 +339,10 @@ def update_output(list_of_contents, list_of_names):
     Input('find-strategy-button', 'n_clicks'),
     State('choose-strategy', 'value'),
     State('choose-bound-dict', 'children'),
+    State('bpmn-lark-store', 'data'),
     prevent_initial_call=True
 )
-def find_strategy(n_clicks, algo:str, bound:dict):
+def find_strategy(n_clicks, algo:str, bound:dict, bpmn_lark:dict):
     """This function is when the user search a str."""
     if bound == {} or bound == None:
         return [html.P(f'Insert a bound dictionary to find the strategy.'),
@@ -419,17 +420,32 @@ def find_strategy(n_clicks, algo:str, bound:dict):
     State('delays', 'children'),
     State('impacts-table', 'children'),
     State('loops', 'children'),
+    State('bpmn-lark-store', 'data'),
     prevent_initial_call=True,
 )
-def create_sese_diagram(n_clicks, task , impacts, durations = {}, probabilities = {}, delays = {}, impacts_table = {}, loops = {}):
-
+def create_sese_diagram(n_clicks, task , impacts, durations = {}, probabilities = {}, delays = {}, impacts_table = {}, loops = {}, bpmn_lark:dict = {}):
+    print(bpmn_lark)
+    if not bpmn_lark:
+        return [  # dbc.Alert(f'Error while parsing the bpmn: {e}', color="danger")]
+                dbc.Modal(
+                    [
+                        dbc.ModalHeader(dbc.ModalTitle("ERROR"), class_name="bg-danger"),
+                        dbc.ModalBody(f'Error: bpmn is empty'),
+                    ],
+                    id="modal",
+                    is_open=True,
+                ),
+                None
+            ]
     #check the syntax of the input if correct print the diagram otherwise an error message
     try:
         if task == '' and bpmn_lark[TASK_SEQ] == '':
             raise Exception
-        elif task != '' and bpmn_lark[TASK_SEQ] == '':
+        elif task != '':
+            # print('task non vuota ')
             bpmn_lark[TASK_SEQ] = task
         else:
+            # print('task  vuota  bpmn no')
             task = bpmn_lark[TASK_SEQ]
     except Exception as e:
         print(f'Error at 1st step while parsing the BPMN tasks sequence: {e}')
@@ -444,8 +460,8 @@ def create_sese_diagram(n_clicks, task , impacts, durations = {}, probabilities 
                 ),
                 None
             ]
+    print(impacts)
     try:
-        bpmn_lark[IMPACTS_NAMES] = impacts.replace(" ",'').split(sep=',')
         bpmn_lark[IMPACTS] = cs.extract_impacts_dict(bpmn_lark[IMPACTS_NAMES], impacts_table) 
         #print(bpmn_lark[IMPACTS])
         bpmn_lark[IMPACTS] = cs.impacts_dict_to_list(bpmn_lark[IMPACTS])     
@@ -464,7 +480,8 @@ def create_sese_diagram(n_clicks, task , impacts, durations = {}, probabilities 
                 None
             ]
     try:
-        bpmn_lark[DURATIONS] = cs.create_duration_dict(task=task, durations=durations)
+        if durations:
+            bpmn_lark[DURATIONS] = cs.create_duration_dict(task=task, durations=durations)
     except Exception as e:
         print(f'Error at 1st step while parsing the BPMN durations: {e}')
         return [  
@@ -542,12 +559,13 @@ def create_sese_diagram(n_clicks, task , impacts, durations = {}, probabilities 
 #######################
 
 @callback(
-    Output('task-duration', 'children',allow_duplicate=True), 
+    [Output('task-duration', 'children',allow_duplicate=True), Output('bpmn-lark-store', 'data', allow_duplicate=True)], 
     Input('input-bpmn', 'value'),
+    State('bpmn-lark-store', 'data'),
     allow_duplicate=True,
     prevent_initial_call=True
 )
-def add_task_durations(tasks_):
+def add_task_durations( tasks_,bpmn_lark): #tasks_
     """
     This function takes a list of tasks and adds a range slider for each task's duration.
     The range slider allows the user to select a duration for each task.
@@ -560,11 +578,12 @@ def add_task_durations(tasks_):
     Returns:
     dbc table with the tables
     """
-    # If no tasks are provided, return an empty list
+    #If no tasks are provided, return an empty list
     if not tasks_:
         return []
+    bpmn_lark[TASK_SEQ] = tasks_
     # Convert the task data list into a DataFrame and then into a Table component
-    return prepare_task_duration(tasks_)
+    return [prepare_task_duration(tasks_), bpmn_lark]
 
 
 #######################
@@ -697,19 +716,21 @@ def add_delays(tasks_):
 #######################
 
 @callback(
-    Output('impacts-table', 'children',allow_duplicate=True),
+    [Output('impacts-table', 'children',allow_duplicate=True), Output('bpmn-lark-store', 'data', allow_duplicate=True)], 
     Input('input-bpmn', 'value'),
     Input('input-impacts', 'value'),
+    State('bpmn-lark-store', 'data'),
     allow_duplicate=True,
     prevent_initial_call=True
 )
-def add_impacts(tasks_, impacts):
+def add_impacts(tasks_, impacts, bpmn_lark):
     """
     """
     # If no tasks are provided, return an empty list
     if not tasks_:
         return []
-    return prepare_task_impacts(tasks_=tasks_, impacts=impacts)
+    bpmn_lark[IMPACTS_NAMES] = impacts.replace(" ",'').split(sep=',')
+    return [prepare_task_impacts(tasks_=tasks_, impacts=impacts), bpmn_lark]
 
 
 #######################
