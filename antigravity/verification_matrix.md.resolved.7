@@ -1,0 +1,14 @@
+# Callback Verification Matrix (Comprehensive)
+
+## 5. Strategy (Optimization)
+| ID | User Action | Callback | Status |
+|----|-------------|----------|--------|
+| 5.1 | **Find Strategy (Standard)**: Click "Find Strategy" | CB19 | ✅ PASSED |
+| 5.2 | **Find (No Solution)**: Set Impossible Bounds -> Click Find | Strategy Alert (Warning) | ⏳ PENDING |
+| 5.3 | **Find (Loose/All)**: Set Loose Bounds -> Click Find -> Select Result | Simulator allows all choices? | ⏳ PENDING |
+| 5.4 | **Find (Strict/Subset)**: Set Strict Bounds -> Click Find -> Select Result | Simulator enforces path? | ⏳ PENDING |
+
+## 9. Integration Tests
+| ID | Scenario | Expected Behavior | Status |
+|----|----------|-------------------|--------|
+| 9.1 | **Strategy -> Sim Enforcement**: Select Strategy -> Run Sim | Sim should follow strategy (no random) | ⏳ PENDING |

@@ -1,0 +1,25 @@
+{
+  "bpmn": {
+    "expression": "<[L1]Cutting>",
+    "impacts": {
+      "Cutting": {
+        "electric energy": 10.0,
+        "worker hours": 1.0
+      }
+    },
+    "durations": {
+      "Cutting": [
+        0,
+        1
+      ]
+    },
+    "probabilities": {},
+    "delays": {},
+    "loop_probability": {
+      "L1": 0.2
+    },
+    "loop_round": {
+      "L1": 3
+    }
+  }
+}

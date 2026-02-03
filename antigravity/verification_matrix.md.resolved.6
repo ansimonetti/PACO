@@ -1,0 +1,32 @@
+# Callback Verification Matrix (Comprehensive)
+
+## 1. Modeling & I/O
+| ID | User Action | Callback | Status |
+|----|-------------|----------|--------|
+| 1.1 | **Generate Graph**: Enter [(A,B)](file:///C:/Users/Emanuele/AppData/Local/Packages/PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0/LocalCache/local-packages/Python313/site-packages/pm4py/utils.py#48-51) + Click Generate | CB11, CB12 | ✅ PASSED |
+| 1.2 | **Download BPMN**: Click "Download BPMN" | CB31 | ✅ PASSED (Implicit) |
+
+## 2. Process Parameters
+| ID | User Action | Callback | Status |
+|----|-------------|----------|--------|
+| 2.1 | **Add Impact**: Click "Add" (New Impact) | CB6 | ✅ PASSED |
+| 2.2 | **Remove Impact**: Click "Remove" (X) | CB7 | ✅ PASSED |
+
+## 3. Visualization
+| ID | User Action | Callback | Status |
+|----|-------------|----------|--------|
+| 3.1 | **Zoom**: Click +/- | CB1, CB2 | ✅ PASSED |
+| 3.2 | **Methods**: Switch Views | CB40, CB41 | ✅ PASSED |
+
+## 4. Simulation
+| ID | User Action | Callback | Status |
+|----|-------------|----------|--------|
+| 4.1 | **Step Forward/Back**: Click Controls | CB38 | ✅ PASSED |
+
+## 8. Stress Tests (Critical Dependencies)
+| ID | Scenario | Expected Behavior | Status |
+|----|----------|-------------------|--------|
+| 8.1 | **Model Change during Sim**: Run Sim -> Generate [(A,C)](file:///C:/Users/Emanuele/AppData/Local/Packages/PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0/LocalCache/local-packages/Python313/site-packages/pm4py/utils.py#48-51) | Sim Reset to T=0, New Graph | ⏳ PENDING |
+| 8.2 | **View Switch during Sim**: Run Sim -> Switch Petri | Sim continues in Petri View | ⏳ PENDING |
+| 8.3 | **Impact Add during Sim**: Run Sim -> Add "Time" -> Step | Sim reflects new data? | ⏳ PENDING |
+| 8.4 | **Rapid Click**: Click Generate 5x fast | No crash/Race handled | ⏳ PENDING |

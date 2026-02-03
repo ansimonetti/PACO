@@ -1,0 +1,29 @@
+{
+  "expression": "T1, (T2 / [C1] T3)",
+  "impacts_names": ["cost", "time"],
+  "impacts": {
+    "T1": {
+      "cost": 5.0,
+      "time": 10.0
+    },
+    "T2": {
+      "cost": 3.0,
+      "time": 5.0
+    },
+    "T3": {
+      "cost": 4.0,
+      "time": 8.0
+    }
+  },
+  "durations": {
+    "T1": [10, 10],
+    "T2": [5, 5],
+    "T3": [8, 8]
+  },
+  "delays": {
+    "C1": 0
+  },
+  "probabilities": {},
+  "loop_probability": {},
+  "loop_round": {}
+}

@@ -1,0 +1,33 @@
+# Verification Walkthrough
+
+## 1. Modeling Feature (Generate Button)
+**Objective**: Verify that the BPMN graph is generated only upon explicit user request.
+- **Pre-Condition**: Input [(A,B)](file:///C:/Users/Emanuele/AppData/Local/Packages/PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0/LocalCache/local-packages/Python313/site-packages/pm4py/utils.py#48-51). Graph area empty.
+- **Action**: Click "Generate".
+- **Post-Condition**: Graph renders `A -> B`.
+- **Proof**:
+  ![Graph Generated](/graph_generated_1769782846560.png)
+
+## 2. Visualization & Views
+**Objective**: Verify UI responsiveness and View Switching.
+- **PetriNet View**: Successfully switched and zoomed.
+  ![PetriNet View](/petrinet_view_1769783440791.png)
+
+## 3. Simulation Workflow
+**Objective**: Verify the "Forward" stepping mechanism and state updates.
+- **Step 1 (Start)**: Task "A" becomes Active.
+  ![Simulation Step 1](/simulation_step_1_1769782919059.png)
+
+- **Step 2 (Progress)**: Task "A" Completes, execution moves to Task "B".
+  ![Simulation Step 2](/simulation_step_1_1769782924742.png)
+
+## 4. Examples & Reliability
+**Objective**: Verify that preset examples load correctly.
+- **Action**: Click "Example 1".
+- **Result**: Complex graph loaded ("Cutting, Bending...").
+- **Proof**:
+  ![Example Loaded](/example_loaded_1769783741570.png)
+
+## 5. Stability Check
+- **Console Logs**: Clean. No errors detected during the entire session.
+- **Crash Status**: The application remained stable throughout all tests.

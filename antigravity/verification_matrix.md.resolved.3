@@ -1,0 +1,42 @@
+# Callback Verification Matrix
+
+This matrix maps user-facing Scenarios to the underlying Dash callbacks to ensure comprehensive testing coverage.
+
+## Scenario 1: Core Modeling (BPMN Generation)
+**User Story**: User enters a process expression and generates the diagram.
+- **Action**: Type [(A,B)](file:///C:/Users/Emanuele/AppData/Local/Packages/PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0/LocalCache/local-packages/Python313/site-packages/pm4py/utils.py#311-397) + Click "Generate".
+- **Primary Callback**: `Callback 11` (Controller: [evaluate_expression](file:///c:/Users/Emanuele/GithubRepo/PACO/gui/src/controller/home/sidebar/bpmn_tab/expression.py#14-83))
+    - **Trigger**: `generate-bpmn-btn.n_clicks`
+    - **Expected Output**: `bpmn-store`, `bpmn-svg-store`, Tables (`task-impacts`, etc.).
+- **Related Callbacks**:
+    - `Callback 12` (Sync Input/Store).
+- **Status**: ✅ **PASSED** (Verified by Browser Test `verify_scenario_1_2`)
+
+## Scenario 2: Visualization Control
+**User Story**: User explores the diagram using zoom and interface controls.
+- **Action**: Zoom (+/-) on BPMN/Petri tabs.
+    - **Callbacks**: `Callback 1`, `Callback 2`.
+- **Action**: Toggle Sidebar.
+    - **Callbacks**: `Callback 20`, `Callback 21`.
+- **Status**: ✅ **PASSED** (Verified by Browser Test `verify_scenario_1_2`)
+
+## Scenario 3: Simulation Workflow
+**User Story**: User runs a step-by-step simulation of the process.
+- **Action**: Click "Forward" (Step).
+    - **Callback**: `Callback 38` (`btn-forward.n_clicks`).
+    - **Inputs**: `bpmn-store`, `simulation-store`.
+    - **Expected Output**: Token movement, Task status changes.
+- **Action**: UI Updates.
+    - **Callbacks**: `Callback 33`, `Callback 35`.
+- **Status**: ✅ **PASSED** (Verified by Browser Test `verify_scenario_3`)
+    - **Validation**:
+        - Step 1: Task A (Active)
+        - Step 2: Task A (Completed) -> Task B (Active)
+        - Finish: Task A & B (Completed)
+
+## Scenario 4: Copilot / Chat
+**User Story**: User asks the AI assistant for help.
+- **Status**: ⏸️ **DEFERRED** (Skipped per user request test/environment limitations).
+
+## Conclusion
+The core reactive DAG is functional. The critical paths for **Modeling** and **Simulation** are verified stable.

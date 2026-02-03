@@ -1,0 +1,31 @@
+{
+  "bpmn": {
+    "expression": "(Fine_Deposition/[C1]Rough_Deposition)",
+    "impacts": {
+      "Fine_Deposition": {
+        "electric energy": 30.0,
+        "worker hours": 1.0
+      },
+      "Rough_Deposition": {
+        "electric energy": 10.0,
+        "worker hours": 1.0
+      }
+    },
+    "durations": {
+      "Fine_Deposition": [
+        0,
+        1
+      ],
+      "Rough_Deposition": [
+        0,
+        1
+      ]
+    },
+    "probabilities": {},
+    "delays": {
+      "C1": 0
+    },
+    "loop_probability": {},
+    "loop_round": {}
+  }
+}

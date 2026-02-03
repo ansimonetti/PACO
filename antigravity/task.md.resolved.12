@@ -1,0 +1,33 @@
+# Project Analysis and Fix
+
+## Analysis
+- [x] Read documentation ([README.md](file:///c:/Users/Emanuele/GithubRepo/PACO/README.md), `docs/*.md`)
+- [x] Read notebooks ([tutorial.ipynb](file:///c:/Users/Emanuele/GithubRepo/PACO/tutorial.ipynb))
+- [x] Run application to check status
+    - [x] GUI running at `http://127.0.0.1:8050`
+    - [x] Simulator identified as crashing previously.
+- [x] Analyze Dash layout and dependencies (`_dash-dependencies`)
+- [x] Create Callback DAG ([callback_graph.md](file:///C:/Users/Emanuele/.gemini/antigravity/brain/0791679f-94dd-49fa-a8ad-98655ecadb8f/callback_graph.md))
+- [x] Analyze DAG for issues ([analyze_dag.py](file:///c:/Users/Emanuele/GithubRepo/PACO/analyze_dag.py))
+- [x] Diff iterations (stable vs latest)
+    - [x] Identified changed files in `gui` and `src`
+- [x] Test GUI (Basic checks passed)
+
+## Fixes
+- [x] Fix `pm4py` dependency issue (User verified .venv usage)
+- [ ] Verify Simulator after fix
+- [ ] Ensure callbacks are stable after fix
+    - [x] Implemented "Generate BPMN" button to decouple expression input from graph generation.
+    - [x] Fixed [inputs.py](file:///c:/Users/Emanuele/GithubRepo/PACO/gui/src/view/home/sidebar/bpmn_tab/inputs.py) Syntax Error (Missing `dbc.Card` wrapper logic).
+
+## Formal Verification
+- [ ] **Map User Scenarios to Callbacks** (Create `verification_matrix.md`)
+    - [ ] Scenario 1: Model Loading (Gen Button) -> CB 11
+    - [ ] Scenario 2: Visualization Controls (Zoom, Sidebar) -> CB 1, 2, 20
+    - [ ] Scenario 3: Simulation (Step Forward) -> CB 38, 33, 35
+    - [ ] Scenario 4: Chat Interaction -> CB 27, 28
+- [ ] **Execute Browser Tests**
+    - [ ] Test Suite 1: Core Modeling
+    - [ ] Test Suite 2: Simulation
+    - [ ] Test Suite 3: Chat
+- [ ] **Final Report**

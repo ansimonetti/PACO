@@ -1,0 +1,29 @@
+{
+  "bpmn": {
+    "expression": "Cutting,Bending",
+    "impacts": {
+      "Cutting": {
+        "electric energy": 10.0,
+        "worker hours": 1.0
+      },
+      "Bending": {
+        "electric energy": 20.0,
+        "worker hours": 1.0
+      }
+    },
+    "durations": {
+      "Cutting": [
+        0,
+        1
+      ],
+      "Bending": [
+        0,
+        1
+      ]
+    },
+    "probabilities": {},
+    "delays": {},
+    "loop_probability": {},
+    "loop_round": {}
+  }
+}

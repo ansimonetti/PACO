@@ -1,0 +1,32 @@
+# Walkthrough - Generate BPMN Button
+
+## Changes Implemented
+To resolve issues with the BPMN graph reloading continuously while typing and to decouple the `expression-bpmn` input from the callback DAG cycle:
+
+1.  **GUI Update ([inputs.py](file:///c:/Users/Emanuele/GithubRepo/PACO/gui/src/view/home/sidebar/bpmn_tab/inputs.py))**:
+    - Replaced the standalone `dcc.Input` with a `dbc.InputGroup` containing:
+        - The `dcc.Input` for the expression.
+        - A new `dbc.Button` labeled **"Generate"**.
+
+2.  **Controller Logic ([expression.py](file:///c:/Users/Emanuele/GithubRepo/PACO/gui/src/controller/home/sidebar/bpmn_tab/expression.py))**:
+    - Updated the [evaluate_expression](file:///c:/Users/Emanuele/GithubRepo/PACO/gui/src/controller/home/sidebar/bpmn_tab/expression.py#14-83) callback.
+    - Changed `Input('expression-bpmn', 'value')` to `State('expression-bpmn', 'value')`.
+    - Added `Input('generate-bpmn-btn', 'n_clicks')`.
+    - The graph now only recalculates when the button is clicked.
+
+## Verification Results
+
+### 1. Pre-Click Behavior
+**Action**: User types [(A,B)](file:///C:/Users/Emanuele/AppData/Local/Packages/PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0/LocalCache/local-packages/Python313/site-packages/pm4py/utils.py#311-397) into the expression field.
+**Result**: The graph area remains empty. The callback is **not** triggered by typing.
+![Pre-Click State](/before_click_1769782385932.png)
+
+### 2. Post-Click Behavior
+**Action**: User clicks "Generate".
+**Result**: The graph renders immediately, showing the sequence `A -> B`.
+![Post-Click State](/after_click_1769782389882.png)
+
+### 3. Stability
+- No console errors were observed.
+- The `IndentationError` encountered during development was fixed and verified.
+- The Callback DAG was re-analyzed and confirmed to be stable (removed circular dependency risk on expression input).

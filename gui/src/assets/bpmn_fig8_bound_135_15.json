@@ -1,0 +1,90 @@
+{
+  "bpmn": {
+    "expression": "(Cutting,((Bending,(Heavy_Polishing^[N1]Light_Polishing))||(Milling,(Fine_Deposition/[C1]Rough_Deposition))),(HPHS/[C2]LPLS))",
+    "impacts": {
+      "Milling": {
+        "electric energy": 50.0,
+        "worker hours": 1.0
+      },
+      "LPLS": {
+        "electric energy": 20.0,
+        "worker hours": 3.0
+      },
+      "Fine_Deposition": {
+        "electric energy": 30.0,
+        "worker hours": 1.0
+      },
+      "Bending": {
+        "electric energy": 20.0,
+        "worker hours": 1.0
+      },
+      "Rough_Deposition": {
+        "electric energy": 10.0,
+        "worker hours": 1.0
+      },
+      "Heavy_Polishing": {
+        "electric energy": 5.0,
+        "worker hours": 4.0
+      },
+      "Light_Polishing": {
+        "electric energy": 8.0,
+        "worker hours": 1.0
+      },
+      "Cutting": {
+        "electric energy": 10.0,
+        "worker hours": 1.0
+      },
+      "HPHS": {
+        "electric energy": 40.0,
+        "worker hours": 1.0
+      }
+    },
+    "durations": {
+      "Milling": [
+        0,
+        1
+      ],
+      "LPLS": [
+        0,
+        2
+      ],
+      "Fine_Deposition": [
+        0,
+        1
+      ],
+      "Bending": [
+        0,
+        1
+      ],
+      "Rough_Deposition": [
+        0,
+        1
+      ],
+      "Heavy_Polishing": [
+        0,
+        2
+      ],
+      "Light_Polishing": [
+        0,
+        1
+      ],
+      "Cutting": [
+        0,
+        1
+      ],
+      "HPHS": [
+        0,
+        1
+      ]
+    },
+    "probabilities": {
+      "N1": 0.2
+    },
+    "delays": {
+      "C2": 0,
+      "C1": 0
+    },
+    "loop_probability": {},
+    "loop_round": {}
+  }
+}
